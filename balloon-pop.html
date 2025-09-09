@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VIP Day – Balloon Pop</title>
+<style>
+:root{--bg:#0e0f23;--card:#111228;--ring:rgba(255,255,255,.12);--text:#f2f3ff;--dim:#b9baf5;--a1:#ff6ec4;--a2:#7873f5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:20px 14px}
+.card{background:var(--card);border:1px solid var(--ring);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.45);padding:16px;text-align:center}
+h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:0 10px 14px;color:var(--dim)}
+.balloons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:12px}
+.balloon{position:relative;width:96px;height:120px;border-radius:50% 50% 45% 45%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.15),transparent 40%),linear-gradient(180deg,#ff6ec4,#7873f5);
+  box-shadow:inset 0 -10px 20px rgba(0,0,0,.25),0 8px 18px rgba(0,0,0,.25);cursor:pointer;transition:transform .12s ease}
+.balloon:after{content:"";position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:2px;height:34px;background:#8aa}
+.balloon:hover{transform:translateY(-2px)} .pop{animation:boom .28s ease forwards}
+@keyframes boom{40%{transform:scale(1.06)}100%{transform:scale(0);opacity:0}}
+.reveal{opacity:0;visibility:hidden;margin-top:12px;border:1px dashed var(--ring);border-radius:12px;background:#10122b;padding:14px;transition:opacity .22s ease}
+.show{opacity:1;visibility:visible}
+.codebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.code{flex:1 1 220px;min-width:180px;padding:10px;border-radius:10px;border:1px solid var(--ring);background:#0f1128;color:#f2f3ff;font-family:ui-monospace,Menlo,Consolas,monospace}
+.copy{flex:0 0 auto;border:0;border-radius:999px;padding:10px 14px;font-weight:800;background:linear-gradient(90deg,#ff6ec4,#7873f5);color:#0e0f23;cursor:pointer}
+.note{margin-top:6px;color:var(--dim);font-size:.85rem}.ok{display:none;color:#1dd1a1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="card" data-done="0">
+    <h1><span class="grad">VIP Day</span> – Balloon Pop 🎈</h1>
+    <p class="sub">Pop any balloon to reveal your code.</p>
+
+    <div class="balloons" id="balloons" aria-live="polite">
+      <div class="balloon" role="button" tabindex="0"></div>
+      <div class="balloon" role="button" tabindex="0"></div>
+      <div class="balloon" role="button" tabindex="0"></div>
+      <div class="balloon" role="button" tabindex="0"></div>
+    </div>
+
+    <div class="reveal" id="reveal">
+      <div class="codebox">
+        <span>🎁 Your VIP code:</span>
+        <input id="code" class="code" type="text" value="YOUR-CODE-HERE" readonly onclick="this.select();document.execCommand('copy')">
+        <button id="copyBtn" class="copy">Copy</button>
+      </div>
+      <div class="note"><span class="tip">Tap Copy or long-press to copy.</span> <span id="copied" class="ok">Copied ✔</span></div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY='rb_vip_balloons_done_202509', card=$('#card'), rev=$('#reveal'), bs=[...document.querySelectorAll('.balloon')], code=$('#code'), copy=$('#copyBtn'), copied=$('#copied');
+  function $(s){return document.querySelector(s)}
+  try{ if(localStorage.getItem(KEY)==='1'){ lock(); } }catch(e){}
+  function lock(){ if(rev) rev.classList.add('show'); bs.forEach(b=>b.style.pointerEvents='none'); card.dataset.done='1'; }
+  function pop(el){ if(card.dataset.done==='1') return; el.classList.add('pop'); setTimeout(function(){ lock(); try{localStorage.setItem(KEY,'1')}catch(e){} }, 260); }
+  bs.forEach(b=>{ b.addEventListener('click', ()=>pop(b)); b.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); pop(b)} });});
+  if(copy){ copy.addEventListener('click', function(){ code.select(); try{document.execCommand('copy'); copied.style.display='inline'; setTimeout(()=>copied.style.display='none',1200);}catch(e){} });}
+})();
+</script>
+</body>
+</html>
