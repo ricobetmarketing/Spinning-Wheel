@@ -22,7 +22,13 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
 @keyframes lift{50%{transform:translateX(-50%) translateY(-6px)}100%{transform:translateX(-50%) translateY(-4px);box-shadow:0 12px 20px rgba(255,230,0,.3),0 0 40px rgba(255,230,0,.3)}}
 
 .reveal{opacity:0;visibility:hidden;margin-top:12px;border:1px dashed var(--ring);border-radius:12px;background:#10122b;padding:14px;transition:opacity .22s ease}
-.show{opacity:1;visibility:visible}
+.reveal.show{opacity:1;visibility:visible;animation:bounceIn .6s ease, glow 1.5s ease-out 2}
+@keyframes bounceIn{0%{opacity:0;transform:scale(.86) translateY(22px)}60%{opacity:1;transform:scale(1.05) translateY(-4px)}100%{transform:scale(1) translateY(0)}}
+@keyframes glow{0%{box-shadow:0 0 0 rgba(255,230,0,.0)}50%{box-shadow:0 0 16px rgba(255,230,0,.9)}100%{box-shadow:0 0 0 rgba(255,230,0,.0)}}
+
+.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
 .codebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .code{flex:1 1 220px;min-width:180px;padding:10px;border-radius:10px;border:1px solid var(--ring);background:#0f1128;color:#f2f3ff;font-family:ui-monospace,Menlo,Consolas,monospace}
 .copy{flex:0 0 auto;border:0;border-radius:999px;padding:10px 14px;font-weight:800;background:linear-gradient(90deg,#ff6ec4,#7873f5);color:#0e0f23;cursor:pointer}
@@ -73,20 +79,16 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
   var copied=document.getElementById('copied');
   var cfx=document.getElementById('cfx');
 
-  // restore if already played
+  // Restore if already played
   try{
     if(localStorage.getItem(KEY_DONE)==='1'){
       var saved=localStorage.getItem(KEY_CODE)||'';
       codeInput.value=saved;
-      lockAndShow();
+      revealWithEffects();
+      card.setAttribute('data-done','1');
+      card.classList.add('open');
     }
   }catch(e){}
-
-  function lockAndShow(){
-    card.classList.add('open');
-    rev.classList.add('show');
-    card.setAttribute('data-done','1');
-  }
 
   function confetti(){
     if(!cfx) return;
@@ -102,12 +104,19 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
     setTimeout(function(){ cfx.classList.remove('show'); }, 1200);
   }
 
+  function revealWithEffects(){
+    card.classList.add('open');          // chest lift
+    card.classList.add('shake');         // quick shake
+    setTimeout(function(){ card.classList.remove('shake'); }, 420);
+    rev.classList.add('show');           // bounce + glow
+    confetti();
+  }
+
   function pickRandomCode(){
     try{
       var arr = JSON.parse(card.getAttribute('data-codes')||'[]');
       if(!arr.length) return '';
-      // 50/50 random choice
-      return arr[Math.floor(Math.random()*arr.length)];
+      return arr[Math.floor(Math.random()*arr.length)]; // 50/50
     }catch(e){ return ''; }
   }
 
@@ -115,11 +124,10 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
     if(card.getAttribute('data-done')==='1') return;
     dig.textContent='⛏️';
     setTimeout(function(){
-      // choose code on first dig
       var chosen = pickRandomCode();
       codeInput.value = chosen;
-      lockAndShow();
-      confetti();
+      revealWithEffects();
+      card.setAttribute('data-done','1');
       try{
         localStorage.setItem(KEY_DONE,'1');
         localStorage.setItem(KEY_CODE, chosen);
@@ -144,4 +152,3 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
 </script>
 </body>
 </html>
-
