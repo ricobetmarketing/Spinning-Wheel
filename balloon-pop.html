@@ -28,7 +28,13 @@ h1{margin:6px 0 4px;font-size:1.2rem}
 @keyframes boom{40%{transform:scale(1.06)}100%{transform:scale(0);opacity:0}}
 
 .reveal{opacity:0;visibility:hidden;margin-top:12px;border:1px dashed var(--ring);border-radius:12px;background:#10122b;padding:14px;transition:opacity .22s ease}
-.show{opacity:1;visibility:visible}
+.reveal.show{opacity:1;visibility:visible;animation:bounceIn .6s ease, glow 1.5s ease-out 2}
+@keyframes bounceIn{0%{opacity:0;transform:scale(.86) translateY(22px)}60%{opacity:1;transform:scale(1.05) translateY(-4px)}100%{transform:scale(1) translateY(0)}}
+@keyframes glow{0%{box-shadow:0 0 0 rgba(255,230,0,.0)}50%{box-shadow:0 0 16px rgba(255,230,0,.9)}100%{box-shadow:0 0 0 rgba(255,230,0,.0)}}
+
+.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
 .codebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .code{flex:1 1 220px;min-width:180px;padding:10px;border-radius:10px;border:1px solid var(--ring);background:#0f1128;color:#f2f3ff;font-family:ui-monospace,Menlo,Consolas,monospace}
 .copy{flex:0 0 auto;border:0;border-radius:999px;padding:10px 14px;font-weight:800;background:linear-gradient(90deg,#ff6ec4,#7873f5);color:#0e0f23;cursor:pointer}
@@ -50,7 +56,7 @@ h1{margin:6px 0 4px;font-size:1.2rem}
     <p class="sub">Pop a balloon to reveal your code.</p>
 
     <div class="balloons" id="balloons" aria-live="polite">
-      <!-- Put the code for each balloon in data-code -->
+      <!-- Each balloon holds its own code -->
       <div class="balloon" data-code="SAYANG" role="button" tabindex="0" aria-label="Balloon 1"><span class="badge">1</span></div>
       <div class="balloon" data-code="FSPINS" role="button" tabindex="0" aria-label="Balloon 2"><span class="badge">2</span></div>
       <div class="balloon" data-code="SWEET"  role="button" tabindex="0" aria-label="Balloon 3"><span class="badge">3</span></div>
@@ -60,14 +66,12 @@ h1{margin:6px 0 4px;font-size:1.2rem}
     <div class="reveal" id="reveal">
       <div class="codebox">
         <span>🎁 Your VIP code:</span>
-        <input id="code" class="code" type="text" value="" readonly
-               onclick="this.select();try{document.execCommand('copy');}catch(e){}">
+        <input id="code" class="code" type="text" value="" readonly onclick="this.select();try{document.execCommand('copy');}catch(e){}">
         <button id="copyBtn" class="copy">Copy</button>
       </div>
       <div class="note"><span class="tip">Tap Copy or long-press to copy.</span> <span id="copied" class="ok">Copied ✔</span></div>
     </div>
 
-    <!-- Confetti -->
     <div class="cfx" id="cfx"></div>
   </div>
 </div>
@@ -85,23 +89,21 @@ h1{margin:6px 0 4px;font-size:1.2rem}
   var balloons=[].slice.call(document.querySelectorAll('.balloon'));
   var cfx=document.getElementById('cfx');
 
-  // restore if already played
+  // Restore if already played
   try{
     if(localStorage.getItem(KEY_DONE)==='1'){
       var saved=localStorage.getItem(KEY_CODE)||'';
       codeInput.value=saved;
-      showReveal();
+      revealWithEffects();
       disableBalloons();
     }
   }catch(e){}
 
-  function showReveal(){
-    rev.classList.add('show');
-  }
   function disableBalloons(){
     balloons.forEach(function(b){ b.style.pointerEvents='none'; b.setAttribute('aria-disabled','true'); });
     card.setAttribute('data-done','1');
   }
+
   function confetti(){
     if(!cfx) return;
     cfx.classList.add('show'); cfx.innerHTML='';
@@ -116,17 +118,24 @@ h1{margin:6px 0 4px;font-size:1.2rem}
     setTimeout(function(){ cfx.classList.remove('show'); }, 1200);
   }
 
+  function revealWithEffects(){
+    // shake the card quickly then show reveal with bounce+glow
+    card.classList.add('shake');
+    setTimeout(function(){ card.classList.remove('shake'); }, 420);
+    rev.classList.add('show');
+    confetti();
+  }
+
   function pick(el){
     if(card.getAttribute('data-done')==='1') return;
     var val = el.getAttribute('data-code') || '';
     // pop effect
     el.classList.add('pop');
-    // after pop, reveal code + lock
+    // after pop, reveal code + lock + effects
     setTimeout(function(){
       codeInput.value = val;
-      showReveal();
+      revealWithEffects();
       disableBalloons();
-      confetti();
       try{
         localStorage.setItem(KEY_DONE,'1');
         localStorage.setItem(KEY_CODE,val);
@@ -153,3 +162,4 @@ h1{margin:6px 0 4px;font-size:1.2rem}
 </script>
 </body>
 </html>
+
