@@ -66,8 +66,12 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
     <div class="cfx" id="cfx"></div>
   </div>
 </div>
+  
 <script>
 (function(){
+  // --- Config: two voucher codes ---
+  var CODES = ["MAPIT", "AURA"];
+
   var KEY_DONE='rb_vip_map_done_202509';
   var KEY_CODE='rb_vip_map_code_202509';
 
@@ -83,10 +87,12 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
   try{
     if(localStorage.getItem(KEY_DONE)==='1'){
       var saved=localStorage.getItem(KEY_CODE)||'';
-      codeInput.value=saved;
-      revealWithEffects();
-      card.setAttribute('data-done','1');
-      card.classList.add('open');
+      if(saved){
+        codeInput.value=saved;
+        revealWithEffects();
+        card.setAttribute('data-done','1');
+        card.classList.add('open');
+      }
     }
   }catch(e){}
 
@@ -113,11 +119,8 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
   }
 
   function pickRandomCode(){
-    try{
-      var arr = JSON.parse(card.getAttribute('data-codes')||'[]');
-      if(!arr.length) return '';
-      return arr[Math.floor(Math.random()*arr.length)]; // 50/50
-    }catch(e){ return ''; }
+    if(!CODES.length) return '';
+    return CODES[Math.floor(Math.random()*CODES.length)];
   }
 
   function act(){
@@ -150,5 +153,4 @@ h1{margin:6px 0 4px;font-size:1.2rem}.grad{background:linear-gradient(90deg,var(
   }
 })();
 </script>
-</body>
-</html>
+
