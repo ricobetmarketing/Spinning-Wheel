@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RicoBet VIP – Spin</title>
+<style>
+  .ri-spin-masc2 *{box-sizing:border-box}
+  .ri-spin-masc2{
+    --ring:rgba(255,255,255,.12); --text:#f2f3ff; --dim:#b9baf5;
+    --a1:#ff6ec4; --a2:#7873f5; --card:#111228; --warn:#ffe600;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
+  }
+  .ri-card{background:var(--card); border:1px solid var(--ring); border-radius:16px;
+           box-shadow:0 4px 18px rgba(0,0,0,.35); padding:14px; max-width:520px; margin:0 auto; text-align:center}
+
+  .ri-title{margin:6px 0; font-size:1.125rem}
+  .ri-grad{background:linear-gradient(90deg,var(--a1),var(--a2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .ri-sub{margin:0 10px 12px; color:var(--dim); font-size:.94rem}
+
+  .spinbtn{display:inline-block; padding:12px 20px; border-radius:999px; font-weight:800;
+           color:#0e0f23; background:linear-gradient(90deg,var(--a1),var(--a2));
+           box-shadow:0 6px 16px rgba(120,115,245,.5); cursor:pointer; text-decoration:none}
+  .spinbtn:active{transform:scale(.97)}
+  .spinbtn[disabled]{opacity:.6; pointer-events:none}
+
+  .wheelWrap{ --W: min(78vw,300px); position:relative; display:grid; place-items:center; padding:8px; margin-top:12px }
+
+  .pointer{
+    position:absolute;
+    top: calc(50% - (var(--W)/2) + 10px);
+    left:50%; transform:translateX(-50%);
+    width:0; height:0;
+    border-left:12px solid transparent; border-right:12px solid transparent;
+    border-top:20px solid var(--warn); filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));
+    z-index:3;
+  }
+
+  .wheel{
+    position:relative; z-index:1;
+    width:var(--W); height:var(--W); border-radius:50%;
+    background:conic-gradient(from 0deg,#262a59 0 25%, #2f3369 0 50%, #262a59 0 75%, #2f3369 0 100%);
+    border:10px solid #0f1128; box-shadow:inset 0 0 0 3px #1d1f42,0 6px 24px rgba(0,0,0,.5);
+    transition:transform 3s cubic-bezier(.22,.61,.36,1);
+  }
+  /* === Labels positioned inside their quadrants (pill style) === */
+.labs{position:absolute; inset:0; z-index:2; pointer-events:none}
+.lab{
+  position:absolute; left:50%; top:50%;
+  transform-origin:center;
+  --r: calc(var(--W) * .36);           /* distance from center */
+  --theta: 0deg;                       /* per-label angle below */
+}
+.lab span{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#00000066;                /* translucent pill */
+  color:#ffffff;
+  font-weight:800;
+  font-size:14px;
+  letter-spacing:.2px;
+  text-shadow:0 1px 1px #00000080;
+}
+/* place each label at a diagonal inside its wedge */
+.lab.a{ --theta: 315deg; } /* top-left quadrant (Free Spins) */
+.lab.b{ --theta:  45deg; } /* top-right quadrant (Lucky Ticket) */
+.lab.c{ --theta: 225deg; } /* bottom-left quadrant (VIP Bonus) */
+.lab.d{ --theta: 135deg; } /* bottom-right quadrant (Mystery) */
+
+/* math: rotate out, move toward rim, rotate back to keep upright */
+.lab{
+  transform:
+    translate(-50%,-50%)
+    rotate(var(--theta))
+    translateY(calc(-1 * var(--r)));
+}
+.lab span{
+  transform: rotate(calc(-1 * var(--theta)));
+}
+
+  .mascot-center{position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:calc(var(--W)*.34); height:calc(var(--W)*.34); max-width:120px; max-height:120px;
+    border-radius:50%; background:#0f1128; box-shadow:0 0 0 4px #0f1128,0 6px 16px rgba(0,0,0,.45); overflow:hidden}
+  .mascot-center img{width:100%; height:100%; object-fit:cover}
+
+  .reveal{opacity:0; visibility:hidden; margin-top:14px; border:1px solid var(--ring);
+          border-radius:12px; background:#10122b; padding:12px; transition:opacity .3s ease}
+  .reveal.show{opacity:1; visibility:visible}
+
+  .codebox{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .codebox .label{flex:0 0 auto; font-size:.95rem}
+  .code{flex:1 1 220px; min-width:180px; padding:10px; border-radius:10px; border:1px solid var(--ring);
+        background:#0f1128; color:#f2f3ff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
+  .copybtn{flex:0 0 auto; border:0; border-radius:999px; padding:10px 14px; font-weight:800;
+           background:linear-gradient(90deg,var(--a1),var(--a2)); color:#0e0f23; cursor:pointer}
+  .copynote{margin-top:6px; color:var(--dim); font-size:.85rem}
+  .ok{display:none; color:#1dd1a1}
+  
+  .spinbtn{
+  position:relative; cursor:pointer;
+  display:inline-block; padding:12px 20px; border-radius:999px;
+  font-weight:800; color:#0e0f23; text-decoration:none;
+  background:linear-gradient(90deg,var(--a1),var(--a2));
+  box-shadow:0 0 22px rgba(120,115,245,.45), 0 8px 18px rgba(0,0,0,.35);
+  transition:transform .12s ease, filter .2s ease, box-shadow .2s ease;
+  animation:btnPulse 2.2s ease-in-out infinite;
+}
+.spinbtn:hover{filter:brightness(1.08)}
+.spinbtn:active{transform:scale(.97)}
+.spinbtn[disabled]{opacity:.6; pointer-events:none; animation:none}
+@keyframes btnPulse{
+  0%,100%{box-shadow:0 0 18px rgba(120,115,245,.35), 0 8px 18px rgba(0,0,0,.35)}
+  50%    {box-shadow:0 0 28px rgba(120,115,245,.60), 0 10px 22px rgba(0,0,0,.38)}
+}
+
+/* Copy button – subtle shine sweep on hover */
+.copybtn{
+  position:relative; overflow:hidden;
+  flex:0 0 auto; border:0; border-radius:999px; padding:10px 14px;
+  font-weight:800; background:linear-gradient(90deg,var(--a1),var(--a2));
+  color:#0e0f23; cursor:pointer; transition:transform .12s ease, filter .2s ease;
+  box-shadow:0 6px 14px rgba(120,115,245,.35);
+}
+.copybtn:hover{filter:brightness(1.06)}
+.copybtn:active{transform:scale(.98)}
+.copybtn::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(120deg, transparent, #ffffff55, transparent);
+  transform:translateX(-120%); transition:transform .35s ease;
+}
+.copybtn:hover::after{transform:translateX(120%)}
+  
+  /* Shared burst keyframe */
+@keyframes clickBurst {
+  0%   { box-shadow:0 0 0 rgba(255,255,255,0.0); transform:scale(1); }
+  40%  { box-shadow:0 0 30px rgba(255,255,255,0.6); transform:scale(1.08); }
+  100% { box-shadow:0 0 0 rgba(255,255,255,0.0); transform:scale(1); }
+}
+
+/* Spin button */
+.spinbtn {
+  position:relative; cursor:pointer;
+  display:inline-block; padding:12px 20px; border-radius:999px;
+  font-weight:800; color:#0e0f23;
+  background:linear-gradient(90deg,var(--a1),var(--a2));
+  box-shadow:0 6px 16px rgba(120,115,245,.45);
+  transition:transform .15s ease;
+}
+.spinbtn.clicked { animation:clickBurst 0.5s ease; }
+
+/* Copy button */
+.copybtn {
+  position:relative; overflow:hidden;
+  border:0; border-radius:999px; padding:10px 14px; font-weight:800;
+  background:linear-gradient(90deg,var(--a1),var(--a2));
+  color:#0e0f23; cursor:pointer;
+  box-shadow:0 6px 14px rgba(120,115,245,.35);
+  transition:transform .15s ease;
+}
+.copybtn.clicked { animation:clickBurst 0.5s ease; }
+  
+  /* Idle glow pulse (before click) */
+@keyframes idlePulse {
+  0%,100% { box-shadow:0 0 14px rgba(120,115,245,.55), 0 0 28px rgba(255,110,196,.35); transform:scale(1); }
+  50%     { box-shadow:0 0 24px rgba(120,115,245,.75), 0 0 38px rgba(255,110,196,.55); transform:scale(1.05); }
+}
+
+/* Spin button */
+.spinbtn {
+  position:relative; cursor:pointer;
+  display:inline-block; padding:12px 20px; border-radius:999px;
+  font-weight:800; color:#0e0f23;
+  background:linear-gradient(90deg,var(--a1),var(--a2));
+  box-shadow:0 6px 16px rgba(120,115,245,.45);
+  transition:transform .15s ease;
+  animation:idlePulse 2s ease-in-out infinite; /* 👈 idle effect */
+}
+.spinbtn.clicked { animation:clickBurst 0.5s ease; }
+
+  spinBtn.addEventListener('click', function(e){
+  e.preventDefault();
+  if (card.getAttribute('data-done')==='1') return;
+  spinBtn.disabled = true;
+  spinBtn.style.animation = 'none';   // stop idle pulse after first click
+  var idx = pick();
+  spinTo(idx);
+});
+
+
+</style>
+
+<div class="ri-spin-masc2">
+  <div class="ri-card" id="card" data-done="0">
+    <h2 class="ri-title"><span class="ri-grad">VIP Day</span> – Spin the Wheel 🎡</h2>
+    <p class="ri-sub">Tap to spin and reveal your code.</p>
+
+    <button class="spinbtn" id="spinBtn">Spin Now</button>
+
+    <div class="wheelWrap">
+      <div class="pointer"></div>
+      <div class="wheel" id="wheel">
+        <div class="labs">
+          <div class="lab a">Free Spins</div>
+          <div class="lab b">Lucky Ticket</div>
+          <div class="lab c">VIP Bonus</div>
+          <div class="lab d">Mystery</div>
+        </div>
+      </div>
+      <div class="mascot-center">
+        <img src="https://ricobr.ft-crm.com/media-api/serve/bf044a19-0484-47be-983e-a8416d340e65_Mascot.gif" alt="Mascot">
+      </div>
+    </div>
+
+    <div class="reveal" id="reveal">
+      <div class="codebox">
+        <span class="label" id="outcomeLabel">🎉 Your VIP code:</span>
+        <input id="code" class="code" type="text" value="" readonly>
+        <button class="copybtn" id="copyBtn">Copy</button>
+      </div>
+      <div class="copynote"><span class="tip">Tap Copy or long-press.</span> <span class="ok" id="copied">Copied ✔</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var wheel=document.getElementById('wheel');
+  var spinBtn=document.getElementById('spinBtn');
+  var codeEl=document.getElementById('code');
+  var reveal=document.getElementById('reveal');
+  var copied=document.getElementById('copied');
+  var copyBtn=document.getElementById('copyBtn');
+  var outcomeLabel=document.getElementById('outcomeLabel');
+  var card=document.getElementById('card');
+
+  // outcome mapping
+var OUTCOMES = [
+  { code: 'VSTAR', name: 'Free Spins',   angle:  45 },  // lab.a (top-left)
+  { code: 'AURA',  name: 'Lucky Ticket', angle: 315 },  // lab.b (top-right)
+  { code: 'CHAMP', name: 'VIP Bonus',    angle: 135 },  // lab.c (bottom-left)
+  { code: 'VIPGO', name: 'Mystery',      angle: 225 }   // lab.d (bottom-right)
+];
+
+  var KEY_DONE='rb_spin_done';
+  var KEY_CODE='rb_spin_code';
+  var KEY_IDX='rb_spin_idx';
+
+  // restore if already played
+  if(localStorage.getItem(KEY_DONE)==='1'){
+    var idx=parseInt(localStorage.getItem(KEY_IDX),10);
+    if(!isNaN(idx) && OUTCOMES[idx]){
+      var o=OUTCOMES[idx];
+      wheel.style.transform='rotate('+o.angle+'deg)';
+      codeEl.value=o.code;
+      outcomeLabel.textContent='🎉 '+o.name+' — your VIP code:';
+      reveal.classList.add('show');
+      spinBtn.disabled=true;
+      card.setAttribute('data-done','1');
+    }
+  }
+
+  function pick(){ return Math.floor(Math.random()*OUTCOMES.length); }
+
+  function spinTo(idx){
+    var o=OUTCOMES[idx];
+    var turns=4+Math.floor(Math.random()*3);
+    var final=turns*360+o.angle;
+    var over=final+20;
+    wheel.style.transition='transform 2.6s cubic-bezier(.22,.61,.36,1)';
+    wheel.style.transform='rotate('+over+'deg)';
+    setTimeout(function(){
+      wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
+      wheel.style.transform='rotate('+final+'deg)';
+    },2600);
+    setTimeout(function(){
+      codeEl.value=o.code;
+      outcomeLabel.textContent='🎉 '+o.name+' — your VIP code:';
+      reveal.classList.add('show');
+      localStorage.setItem(KEY_DONE,'1');
+      localStorage.setItem(KEY_CODE,o.code);
+      localStorage.setItem(KEY_IDX,idx);
+      card.setAttribute('data-done','1');
+    },3300);
+  }
+
+  // Add click animation class and remove after animation ends
+function addClickEffect(btn){
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    btn.classList.remove('clicked'); // reset if still on
+    void btn.offsetWidth;            // reflow to restart animation
+    btn.classList.add('clicked');
+    setTimeout(()=>btn.classList.remove('clicked'),500);
+  });
+}
+
+addClickEffect(document.getElementById('spinBtn'));
+addClickEffect(document.getElementById('copyBtn'));
+
+  
+  if(spinBtn){
+    spinBtn.addEventListener('click',function(e){
+      e.preventDefault();
+      if(card.getAttribute('data-done')==='1')return;
+      spinBtn.disabled=true;
+      var idx=pick();
+      spinTo(idx);
+    });
+  }
+
+  if(copyBtn){
+    copyBtn.addEventListener('click',async function(){
+      var txt=codeEl.value;
+      if(!txt)return;
+      try{
+        if(navigator.clipboard){
+          await navigator.clipboard.writeText(txt);
+        }else{
+          codeEl.select();
+          document.execCommand('copy');
+        }
+        copied.style.display='inline';
+        setTimeout(()=>{copied.style.display='none';},1500);
+      }catch(e){ alert('Copy failed. Please long-press the code.'); }
+    });
+  }
+})();
+</script>
+</body>
+</html>
