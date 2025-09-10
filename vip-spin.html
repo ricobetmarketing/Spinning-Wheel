@@ -198,33 +198,43 @@
     }catch(e){}
   }
 
-  // ... keep your existing code above
-if (copy) {
-  copy.addEventListener('click', async function () {
-    const txt = codeEl.value || '';
-    if (!txt) return; // nothing to copy if they haven't spun yet
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(txt);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = txt;
-        ta.setAttribute('readonly', '');
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
-      copied.style.display = 'inline';
-      setTimeout(() => { copied.style.display = 'none'; }, 1500);
-    } catch (err) {
-      alert('Copy failed. Please long-press the code and copy.');
-    }
-  });
-}
+  if (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (card.getAttribute('data-done') === '1') return; // already spun
+      btn.setAttribute('disabled', 'disabled');
+      confetti();
+      var idx = pickRandomIndex();
+      spinTo(idx);
+    });
+  }
 
+  if (copy) {
+    copy.addEventListener('click', async function () {
+      const txt = codeEl.value || '';
+      if (!txt) return; // nothing to copy if they haven't spun yet
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(txt);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = txt;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        copied.style.display = 'inline';
+        setTimeout(() => { copied.style.display = 'none'; }, 1500);
+      } catch (err) {
+        alert('Copy failed. Please long-press the code and copy.');
+      }
+    });
+  }
+})(); 
 </script>
 </body>
 </html>
