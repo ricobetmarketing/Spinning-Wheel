@@ -21,7 +21,7 @@
 
   h1{margin:6px 0 4px; font-size:1.2rem}
   .grad{background:linear-gradient(90deg,var(--a1),var(--a2),var(--a1)); -webkit-background-clip:text; background-clip:text; color:transparent; background-size:200% 100%; animation:shimmer 3s linear infinite}
-  @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+  @keyframes shimmer{to{background-position:100% 50%}}
   .sub{margin:0 10px 14px; color:var(--dim)}
 
   .spinbtn{display:inline-block; padding:12px 20px; border-radius:999px; font-weight:800; color:#0e0f23; text-decoration:none; background:linear-gradient(90deg,var(--a1),var(--a2));
@@ -48,18 +48,21 @@
     mask: radial-gradient(circle at 50% 50%, transparent 68%, #000 69%);
   }
 
-  .labs{position:absolute; inset:0; display:grid; place-items:center; z-index:1}
-  .lab{position:absolute; font-size:.92rem; color:#ffe; text-shadow:0 1px 1px rgba(0,0,0,.6); font-weight:700; animation:pulse 2s infinite alternate}
-  @keyframes pulse{0%{opacity:.6; transform:scale(.95)}100%{opacity:1; transform:scale(1)}}
-  .lab.a{top:12px; left:50%; transform:translateX(-50%)}
-  .lab.b{right:12px; top:50%; transform:translateY(-50%) rotate(90deg)}
-  .lab.c{bottom:12px; left:50%; transform:translateX(-50%) rotate(180deg)}
-  .lab.d{left:12px; top:50%; transform:translateY(-50%) rotate(-90deg)}
+  /* Labels INSIDE the wheel, centered in wedges and kept upright */
+  .labwrap{position:absolute; inset:0; z-index:2; pointer-events:none}
+  .lab{position:absolute; left:50%; top:50%; transform-origin:center; font-size:.92rem; color:#e6e7ff; text-shadow:0 1px 1px rgba(0,0,0,.6); font-weight:800; letter-spacing:.2px}
+  .lab{ --r: 37%; } /* distance from center */
+  .lab span{ display:inline-block; }
+  .lab.a{ --theta: 0deg; }
+  .lab.b{ --theta: 90deg; }
+  .lab.c{ --theta: 180deg; }
+  .lab.d{ --theta: 270deg; }
+  .lab{ transform: translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r))); }
+  .lab span{ transform: rotate(calc(-1 * var(--theta))); } /* upright text */
 
   .center{position:absolute; z-index:2; left:50%; top:50%; transform:translate(-50%,-50%); width:calc(var(--W)*.34); height:calc(var(--W)*.34); max-width:130px; max-height:130px;
           border-radius:50%; background:#0f1128; display:grid; place-items:center; overflow:hidden; box-shadow:0 0 0 4px #0f1128, 0 6px 16px rgba(0,0,0,.45); animation:breath 3s ease-in-out infinite}
   @keyframes breath{0%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}100%{transform:translate(-50%,-50%) scale(1)}}
-
   .center img{width:100%; height:100%; object-fit:cover}
 
   .reveal{opacity:0; visibility:hidden; margin-top:12px; border:1px dashed var(--ring); border-radius:12px; background:#10122b; padding:14px; transition:opacity .3s ease, visibility 0s linear}
@@ -83,9 +86,8 @@
   @media (prefers-reduced-motion: reduce){
     .grad{animation:none}
     .wheel{transition:none}
-    .lab{animation:none}
-    .center{animation:none}
     .pointer{animation:none}
+    .center{animation:none}
   }
 </style>
 </head>
@@ -99,13 +101,17 @@
 
       <div class="wrapspin" aria-hidden="true">
         <div class="pointer"></div>
-        <div class="wheel"></div>
-        <div class="labs">
-          <div class="lab a">Free Spins</div>
-          <div class="lab b">Lucky Ticket</div>
-          <div class="lab c">VIP Bonus</div>
-          <div class="lab d">Mystery</div>
+
+        <div class="wheel" role="img" aria-label="Prize wheel with four segments">
+          <!-- Labels that rotate with the wheel but stay upright -->
+          <div class="labwrap" aria-hidden="true">
+            <div class="lab a"><span>Free Spins</span></div>
+            <div class="lab b"><span>Lucky Ticket</span></div>
+            <div class="lab c"><span>VIP Bonus</span></div>
+            <div class="lab d"><span>Mystery</span></div>
+          </div>
         </div>
+
         <div class="center">
           <img src="https://ricobr.ft-crm.com/media-api/serve/bf044a19-0484-47be-983e-a8416d340e65_Mascot.gif" alt="Mascot">
         </div>
@@ -133,13 +139,14 @@
   var copy=document.getElementById('copyBtn');
   var copied=document.getElementById('copied');
   var wheel=document.querySelector('.wheel');
+  var labwrap=document.querySelector('.labwrap');
   var outcomeLabel=document.getElementById('outcomeLabel');
 
   var OUTCOMES=[
-    {name:'Free Spins', code:'VSTAR', center:0},
-    {name:'Lucky Ticket', code:'AURA', center:90},
-    {name:'VIP Bonus', code:'CHAMP', center:180},
-    {name:'Mystery', code:'VIPGO', center:270}
+    {name:'Free Spins',   code:'VSTAR', center:   0},
+    {name:'Lucky Ticket', code:'AURA',  center:  90},
+    {name:'VIP Bonus',    code:'CHAMP', center: 180},
+    {name:'Mystery',      code:'VIPGO', center: 270}
   ];
 
   var KEY_DONE='rb_vip_spin_done_202509';
@@ -177,10 +184,27 @@
 
   function pickRandomIndex(){return Math.floor(Math.random()*OUTCOMES.length)}
 
+  // Overshoot → settle, with counter-rotation so labels stay upright
   function spinTo(index){
-    var turns=4+Math.floor(Math.random()*3);
-    var targetDeg=turns*360+OUTCOMES[index].center;
-    wheel.style.transform='rotate('+targetDeg+'deg)';
+    var turns=4+Math.floor(Math.random()*3);             // 4,5,6 turns
+    var base=turns*360+OUTCOMES[index].center;           // final alignment
+    var over=base+14;                                    // overshoot
+
+    wheel.style.transition='transform 2.4s cubic-bezier(.22,.61,.36,1)';
+    wheel.style.transform='rotate('+over+'deg)';
+    if(labwrap){
+      labwrap.style.transition='transform 2.4s cubic-bezier(.22,.61,.36,1)';
+      labwrap.style.transform='rotate('+(-over)+'deg)';  // inverse
+    }
+
+    setTimeout(function(){
+      wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
+      wheel.style.transform='rotate('+base+'deg)';
+      if(labwrap){
+        labwrap.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
+        labwrap.style.transform='rotate('+(-base)+'deg)'; // keep upright
+      }
+    },2400);
   }
 
   function reveal(index){
@@ -208,7 +232,7 @@
       setTimeout(function(){
         card.classList.remove('spinning');
         reveal(idx);
-      },3300);
+      },3100); // slightly longer than transitions
     });
   }
 
