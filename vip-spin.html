@@ -197,7 +197,6 @@
     }catch(e){}
   }
 
- <script>
   // ... keep your existing code above
   if (copy) {
     copy.addEventListener('click', async function () {
@@ -205,18 +204,16 @@
       if (!txt) return; // nothing to copy if they haven't spun yet
 
       try {
-        // Preferred path (HTTPS + user gesture)
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(txt);
         } else {
-          // Fallback path (works on Safari/iOS & older browsers)
+          // Fallback for older browsers/iOS
           const ta = document.createElement('textarea');
           ta.value = txt;
-          // Place offscreen but selectable
+          ta.setAttribute('readonly', '');
           ta.style.position = 'fixed';
-          ta.style.top = '-1000px';
+          ta.style.left = '-9999px';
           document.body.appendChild(ta);
-          ta.focus();
           ta.select();
           document.execCommand('copy');
           document.body.removeChild(ta);
@@ -227,11 +224,11 @@
         setTimeout(() => { copied.style.display = 'none'; }, 1500);
       } catch (err) {
         console.error('Copy failed', err);
-        // Optional fallback UI
         alert('Copy failed. Please long-press the code and copy.');
       }
     });
   }
+})();  // <-- close the IIFE
 </script>
 </body>
 </html>
