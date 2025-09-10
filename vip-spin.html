@@ -34,8 +34,7 @@
 
   .wrapspin{--W:min(80vw,320px); position:relative; display:grid; place-items:center; padding:12px 8px}
   .pointer{position:absolute; top:calc(50% - (var(--W)/2) + 10px); left:50%; transform:translateX(-50%); width:0; height:0;
-           border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:20px solid var(--warn); filter:drop-shadow(0 1px 1px rgba(0,0,0,.6)); z-index:3; animation:wiggle 1.5s ease-in-out infinite}
-  @keyframes wiggle{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(6deg)}}
+           border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:20px solid var(--warn); filter:drop-shadow(0 1px 1px rgba(0,0,0,.6)); z-index:3}
 
   /* Wheel */
   .wheel{position:relative; z-index:1; width:var(--W); height:var(--W); border-radius:50%;
@@ -48,7 +47,7 @@
     mask: radial-gradient(circle at 50% 50%, transparent 68%, #000 69%);
   }
 
-  /* Labels INSIDE the wheel, centered in wedges and kept upright */
+  /* Labels INSIDE the wheel, centered in wedges; spin with wheel; go upright at settle */
   .labwrap{position:absolute; inset:0; z-index:2; pointer-events:none}
   .lab{position:absolute; left:50%; top:50%; transform-origin:center; font-size:.92rem; color:#e6e7ff; text-shadow:0 1px 1px rgba(0,0,0,.6); font-weight:800; letter-spacing:.2px}
   .lab{ --r: 37%; } /* distance from center */
@@ -58,11 +57,10 @@
   .lab.c{ --theta: 180deg; }
   .lab.d{ --theta: 270deg; }
   .lab{ transform: translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r))); }
-  .lab span{ transform: rotate(calc(-1 * var(--theta))); } /* upright text */
+  .lab span{ transform: rotate(calc(-1 * var(--theta))); } /* upright at rest */
 
   .center{position:absolute; z-index:2; left:50%; top:50%; transform:translate(-50%,-50%); width:calc(var(--W)*.34); height:calc(var(--W)*.34); max-width:130px; max-height:130px;
-          border-radius:50%; background:#0f1128; display:grid; place-items:center; overflow:hidden; box-shadow:0 0 0 4px #0f1128, 0 6px 16px rgba(0,0,0,.45); animation:breath 3s ease-in-out infinite}
-  @keyframes breath{0%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}100%{transform:translate(-50%,-50%) scale(1)}}
+          border-radius:50%; background:#0f1128; display:grid; place-items:center; overflow:hidden; box-shadow:0 0 0 4px #0f1128, 0 6px 16px rgba(0,0,0,.45)}
   .center img{width:100%; height:100%; object-fit:cover}
 
   .reveal{opacity:0; visibility:hidden; margin-top:12px; border:1px dashed var(--ring); border-radius:12px; background:#10122b; padding:14px; transition:opacity .3s ease, visibility 0s linear}
@@ -87,7 +85,6 @@
     .grad{animation:none}
     .wheel{transition:none}
     .pointer{animation:none}
-    .center{animation:none}
   }
 </style>
 </head>
@@ -103,7 +100,6 @@
         <div class="pointer"></div>
 
         <div class="wheel" role="img" aria-label="Prize wheel with four segments">
-          <!-- Labels that rotate with the wheel but stay upright -->
           <div class="labwrap" aria-hidden="true">
             <div class="lab a"><span>Free Spins</span></div>
             <div class="lab b"><span>Lucky Ticket</span></div>
@@ -165,6 +161,9 @@
         if(btn)btn.style.display='none';
         rev.classList.add('show');
         card.setAttribute('data-done','1');
+        // ensure labels upright on reload
+        var finalDeg = OUTCOMES[savedIdx>=0?savedIdx:0].center;
+        if(labwrap){ labwrap.style.transform = 'rotate('+(-finalDeg)+'deg)'; }
       }
     }
   }catch(e){}
@@ -184,25 +183,28 @@
 
   function pickRandomIndex(){return Math.floor(Math.random()*OUTCOMES.length)}
 
-  // Overshoot → settle, with counter-rotation so labels stay upright
+  // Spin: labels spin with wheel (no counter-rotation during spin),
+  // then we upright the text on the final settle only.
   function spinTo(index){
-    var turns=4+Math.floor(Math.random()*3);             // 4,5,6 turns
-    var base=turns*360+OUTCOMES[index].center;           // final alignment
-    var over=base+14;                                    // overshoot
+    var turns=4+Math.floor(Math.random()*3);              // 4,5,6 turns
+    var base=turns*360+OUTCOMES[index].center;            // final align at pointer
+    var over=base+14;                                     // overshoot
 
+    // Stage 1: spin to overshoot (labels follow wheel)
     wheel.style.transition='transform 2.4s cubic-bezier(.22,.61,.36,1)';
     wheel.style.transform='rotate('+over+'deg)';
     if(labwrap){
-      labwrap.style.transition='transform 2.4s cubic-bezier(.22,.61,.36,1)';
-      labwrap.style.transform='rotate('+(-over)+'deg)';  // inverse
+      labwrap.style.transition='none';                    // keep spinning with wheel visually
+      labwrap.style.transform='';                         // no counter yet
     }
 
+    // Stage 2: settle and upright labels
     setTimeout(function(){
       wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
       wheel.style.transform='rotate('+base+'deg)';
       if(labwrap){
         labwrap.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
-        labwrap.style.transform='rotate('+(-base)+'deg)'; // keep upright
+        labwrap.style.transform='rotate('+(-base)+'deg)'; // bring text upright
       }
     },2400);
   }
@@ -225,12 +227,10 @@
       e.preventDefault();
       if(card.getAttribute('data-done')==='1')return;
       btn.setAttribute('disabled','disabled');
-      card.classList.add('spinning');
       confetti();
       var idx=pickRandomIndex();
       spinTo(idx);
       setTimeout(function(){
-        card.classList.remove('spinning');
         reveal(idx);
       },3100); // slightly longer than transitions
     });
