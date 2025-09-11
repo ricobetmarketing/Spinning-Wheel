@@ -3,168 +3,144 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RicoBet VIP – Spin</title>
+<title>RicoBet VIP – Spin & Win</title>
 <style>
-  .ri-spin-masc2 *{box-sizing:border-box}
-  .ri-spin-masc2{
-    --ring:rgba(255,255,255,.12); --text:#f2f3ff; --dim:#c5c7ff;
-    --a1:#ff6ec4; --a2:#7873f5; --card:#111228; --warn:#ffe600;
-    --gold1:#ffd36b; --gold2:#ffb436; --gold3:#ffcf7a;
-    --wedgeDark:#ffc14a; --wedgeLight:#ffe39a;
+  :root{
+    --text:#f6f7ff; --dim:#cfd1ff;
+    --rb-red:#ff2e55; --rb-pink:#ff6ec4; --rb-purple:#6c58ff;
+    --gold1:#ffd36b; --gold2:#ffb436; --gold3:#ffcf7a; --warn:#ffe600;
+    --wedgeDark:#ff7b44; --wedgeLight:#ffc86a;
+  }
+  *{box-sizing:border-box}
 
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
-
-    /* brighter, dimensional background */
-    min-height:100dvh;
+  /* ===== PAGE BACKGROUND (static, no moving lines) ===== */
+  body{
+    margin:0; color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    min-height:100dvh; display:grid; place-items:center; padding:18px;
     background:
-      radial-gradient(1200px 600px at 50% -10%, #ffffff1f 0%, #0000 60%),
-      conic-gradient(from 30deg, #ffffff10 0 8%, #0000 8% 25%, #ffffff0d 25% 33%, #0000 33% 50%, #ffffff10 50% 58%, #0000 58% 100%),
-      radial-gradient(1200px 900px at 50% 30%, #2a3472 0%, #151a3b 55%, #0c0f24 100%);
-    padding:18px;
+      url("https://ricobr.ft-crm.com/media-api/serve/b6c73de3-7fcb-4ee1-8188-0c0f6542806c_WY_Mascott_Icon.png")
+      center 60% / cover no-repeat fixed;
+    position:relative; overflow-x:hidden;
+  }
+  /* dark vignette only (no animated rings) */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(140% 90% at 50% 30%, #00000088 0%, #00000099 45%, #000000b3 100%);
   }
 
-  .ri-card{
-    background:linear-gradient(180deg,#141735,#0e1128); /* ✅ fixed */
-    border:1px solid #202351; border-radius:18px;
-    box-shadow:0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 #303472;
-    padding:16px; max-width:600px; margin:0 auto; text-align:center
+  /* ===== Header/card (transparent) ===== */
+  .card{
+    position:relative; z-index:2;
+    width:min(760px,94vw); text-align:center;
+    background:transparent; border:0; border-radius:20px; box-shadow:none;
+    padding:18px 16px 10px;
   }
+  h2{margin:6px 0 4px; font-size:1.14rem}
+  .grad{background:linear-gradient(90deg,var(--rb-pink),var(--rb-purple));
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{margin:0 10px 14px; color:var(--dim)}
 
-  .ri-title{margin:6px 0 4px; font-size:1.12rem}
-  .ri-grad{background:linear-gradient(90deg,var(--a1),var(--a2)); -webkit-background-clip:text; background-clip:text; color:transparent}
-  .ri-sub{margin:0 10px 12px; color:var(--dim); font-size:.95rem}
-
-  /* === Buttons with effects === */
-  .spinbtn,.copybtn{
-    position:relative; cursor:pointer; display:inline-block; border-radius:999px; font-weight:800;
-    color:#0e0f23; text-decoration:none; background:linear-gradient(90deg,var(--a1),var(--a2));
-    box-shadow:0 6px 16px rgba(120,115,245,.45); overflow:hidden;
+  /* ===== Buttons (pulse + shine) ===== */
+  .btn{
+    position:relative; z-index:10;
+    display:inline-flex; align-items:center; gap:8px;
+    border:0; cursor:pointer; user-select:none;
+    color:#0e0f23; font-weight:800; border-radius:999px; overflow:hidden;
+    background:linear-gradient(90deg,var(--rb-pink),var(--rb-purple));
+    padding:14px 24px;
+    box-shadow:0 10px 26px rgba(120,115,245,.45), 0 10px 22px rgba(0,0,0,.35);
     transition:transform .15s ease, filter .2s ease, box-shadow .2s ease;
+    animation:btnPulse 2.2s ease-in-out infinite;
+    margin-bottom:14px;
   }
-  .spinbtn{padding:14px 24px; font-size:1rem; animation:btnPulse 2.2s ease-in-out infinite}
-  .copybtn{padding:10px 16px; font-size:.9rem}
-
+  .btn:hover{filter:brightness(1.08)}
+  .btn:active{transform:scale(.98)}
   @keyframes btnPulse{
-    0%,100%{box-shadow:0 0 14px rgba(120,115,245,.55),0 0 28px rgba(255,110,196,.35); transform:scale(1)}
-    50%{box-shadow:0 0 24px rgba(120,115,245,.75),0 0 38px rgba(255,110,196,.55); transform:scale(1.04)}
+    0%,100%{box-shadow:0 0 16px rgba(120,115,245,.55), 0 0 28px rgba(255,46,85,.32)}
+    50%    {box-shadow:0 0 26px rgba(120,115,245,.75), 0 0 42px rgba(255,46,85,.52)}
   }
-  .spinbtn:hover,.copybtn:hover{filter:brightness(1.07)}
-  .spinbtn:active,.copybtn:active{transform:scale(.98)}
-  .spinbtn[disabled]{opacity:.6; pointer-events:none; animation:none}
-
-  /* Shine sweep on hover */
-  .spinbtn::after,.copybtn::after{
+  .btn::after{
     content:""; position:absolute; inset:0;
     background:linear-gradient(120deg, transparent, #ffffff66 40%, transparent 70%);
     transform:translateX(-120%); transition:transform .45s ease;
   }
-  .spinbtn:hover::after,.copybtn:hover::after{transform:translateX(120%)}
+  .btn:hover::after{transform:translateX(120%)}
+  @keyframes clickPop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .clicked{animation:clickPop .35s ease}
 
-  /* Click burst */
-  @keyframes clickBurst{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
-  .spinbtn.clicked,.copybtn.clicked{animation:clickBurst .35s ease}
-
-  /* --------- WHEEL --------- */
-  .wheelWrap{ --W: min(78vw,360px); position:relative; display:grid; place-items:center; padding:12px; margin:14px auto 6px }
-  /* drop shadow under wheel for 3D lift */
-  .wheelWrap::after{
-    content:""; position:absolute; width:80%; height:18px; bottom:-10px; left:50%; transform:translateX(-50%);
-    background:radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0));
-    filter:blur(6px); z-index:0;
+  /* ===== Wheel ===== */
+  .wrap{ --W:min(84vw,480px); position:relative; display:grid; place-items:center; margin:8px auto 6px; z-index:2 }
+  /* halo LIGHT behind wheel (shiny glow) */
+  .wrap .halo{
+    position:absolute; z-index:0; width:calc(var(--W)*1.25); height:calc(var(--W)*1.25);
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 45%, #ffefb480 0 22%, #ffcf7a38 35%, #0000 60%),
+      radial-gradient(circle at 45% 60%, #ffffff33 0 8%, #0000 40%);
+    filter:blur(8px);
+  }
+  /* ground shadow for lift */
+  .wrap::after{
+    content:""; position:absolute; width:78%; height:18px; bottom:-12px; left:50%; transform:translateX(-50%);
+    background:radial-gradient(closest-side, rgba(0,0,0,.52), rgba(0,0,0,0)); filter:blur(6px);
   }
 
-  /* idle / spin state control */
-  .wheelWrap.idle .orbit,
-  .wheelWrap.idle .bulbs,
-  .wheelWrap.idle .hub .shine,
-  .wheelWrap.idle .hub img.logo { animation-play-state:running }
-  .wheelWrap.is-spinning .orbit,
-  .wheelWrap.is-spinning .bulbs,
-  .wheelWrap.is-spinning .hub .shine { animation-play-state:paused } /* NOTE: logo NOT paused */
+  .outerRing{display:none} /* removed slow moving ring */
 
   .pointer{
     position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%);
-    width:0; height:0; z-index:8;
-    border-left:13px solid transparent; border-right:13px solid transparent; border-top:26px solid var(--warn);
+    width:0; height:0; z-index:7;
+    border-left:14px solid transparent; border-right:14px solid transparent; border-top:28px solid var(--warn);
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.6));
   }
   .pointer::after{
-    content:""; position:absolute; top:-18px; left:-9px; width:18px; height:18px; border-radius:50%;
+    content:""; position:absolute; top:-20px; left:-10px; width:20px; height:20px; border-radius:50%;
     background:radial-gradient(circle at 35% 35%, #fff, #ffd53a 45%, #e3aa00 70%);
-    box-shadow:0 0 10px rgba(255,214,58,.65), inset 0 0 6px rgba(255,255,255,.7);
+    box-shadow:0 0 12px rgba(255,214,58,.7), inset 0 0 6px rgba(255,255,255,.85);
   }
-
-  /* Outer orbit ring (pre-spin motion) */
-  .orbit{
-    position:absolute; inset:-26px; border-radius:50%; z-index:3; pointer-events:none;
-    background:
-      conic-gradient(from 0deg, #ffffff30 0 1.3deg, #0000 1.3deg 12deg) repeat,
-      conic-gradient(from 6deg, #ffffff25 0 1.3deg, #0000 1.3deg 12deg) repeat;
-    -webkit-mask:radial-gradient(circle, transparent 80%, #000 82%);
-            mask:radial-gradient(circle, transparent 80%, #000 82%);
-    animation:orbit 6s linear infinite;
-  }
-  @keyframes orbit { to{ transform:rotate(360deg) } }
 
   .wheel{
-    position:relative; z-index:1; width:var(--W); height:var(--W); border-radius:50%;
-    /* Alternating wedges */
+    position:relative; width:var(--W); height:var(--W); border-radius:50%; z-index:1;
     background:conic-gradient(from -22.5deg,
       var(--wedgeDark) 0 12.5%, var(--wedgeLight) 0 25%,
       var(--wedgeDark) 0 37.5%, var(--wedgeLight) 0 50%,
       var(--wedgeDark) 0 62.5%, var(--wedgeLight) 0 75%,
       var(--wedgeDark) 0 87.5%, var(--wedgeLight) 0 100%);
-    /* 3D face + rim */
     box-shadow:
       inset 0 0 0 12px #101235,
       inset 0 0 0 16px #1a1d3f,
-      inset 20px 20px 40px rgba(0,0,0,.20),
-      inset -8px -14px 24px rgba(255,255,255,.14),
-      0 22px 50px rgba(0,0,0,.55);
-    transition:transform 3s cubic-bezier(.22,.61,.36,1);
+      inset 22px 22px 46px rgba(0,0,0,.22),
+      inset -10px -16px 26px rgba(255,255,255,.14),
+      0 26px 60px rgba(0,0,0,.60);
+    transition:transform 2.2s cubic-bezier(.22,.61,.36,1);
   }
-
-  /* Golden beveled rim */
   .wheel::before{
-    content:""; position:absolute; inset:-20px; border-radius:50%;
+    content:""; position:absolute; inset:-22px; border-radius:50%;
     background:conic-gradient(from 90deg, var(--gold1), var(--gold2), var(--gold3), var(--gold1));
-    box-shadow:
-      inset 0 10px 18px rgba(255,255,255,.45),
-      inset 0 -14px 22px rgba(132,84,0,.50),
-      0 12px 26px rgba(0,0,0,.45);
+    box-shadow:inset 0 12px 20px rgba(255,255,255,.45), inset 0 -16px 24px rgba(132,84,0,.50), 0 12px 28px rgba(0,0,0,.45);
     z-index:-1;
   }
-
-  /* Glass sheen & specular highlights */
   .wheel::after{
     content:""; position:absolute; inset:14px; border-radius:50%;
     background:
-      radial-gradient(120% 80% at 30% 25%, #ffffff3a 0 35%, transparent 55%),
-      radial-gradient(120% 80% at 70% 75%, #00000035 0 28%, transparent 60%);
+      radial-gradient(120% 80% at 30% 25%, #ffffff35 0 35%, transparent 55%),
+      radial-gradient(120% 80% at 70% 75%, #00000033 0 28%, transparent 60%);
     box-shadow:inset 0 0 0 2px #171a38, inset 0 0 30px rgba(0,0,0,.35);
   }
 
-  /* Strong wedge borders + inner ticks */
-  .separators{position:absolute; inset:0; pointer-events:none; z-index:4}
-  .separators::before,
-  .separators::after{
+  /* borders under icons (kept under z-index) */
+  .seps{position:absolute; inset:0; pointer-events:none; z-index:1}
+  .seps::before,.seps::after{
     content:""; position:absolute; border-radius:50%;
     -webkit-mask:radial-gradient(circle, transparent var(--cut,56%), #000 calc(var(--cut,56%) + 1%));
             mask:radial-gradient(circle, transparent var(--cut,56%), #000 calc(var(--cut,56%) + 1%));
   }
-  .separators::before{
-    inset:20px; --cut:56%;
-    background:conic-gradient(#8a5a00 0 2.4deg, #0000 2.4deg 45deg) repeat;
-    filter:drop-shadow(0 0 2px rgba(255,229,120,.75));
-  }
-  .separators::after{
-    inset:42px; --cut:45%;
-    background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat;
-    opacity:.7;
-  }
+  .seps::before{ inset:20px; --cut:56%; background:conic-gradient(#7f5200 0 2.8deg, #0000 2.8deg 45deg) repeat; filter:drop-shadow(0 0 2px rgba(255,229,120,.75)); }
+  .seps::after{ inset:44px; --cut:45%; background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat; opacity:.7; }
 
-  /* Rim bulbs (rotate in idle) */
-  .bulbs{position:absolute; inset:-6px; z-index:6; pointer-events:none; animation:orbit 10s linear infinite}
+  .bulbs{position:absolute; inset:-6px; z-index:2; pointer-events:none}
   .bulbs i{
     position:absolute; left:50%; top:50%; width:14px; height:14px; border-radius:50%;
     background:radial-gradient(circle at 35% 35%, #fff, #8ee7ff 55%, #1bb3ff 80%);
@@ -178,96 +154,91 @@
   .bulbs i:nth-child(9){--rot:240deg}  .bulbs i:nth-child(10){--rot:270deg}
   .bulbs i:nth-child(11){--rot:300deg} .bulbs i:nth-child(12){--rot:330deg}
 
-  /* Reward ICONS (8) */
-  .labs{position:absolute; inset:0; z-index:5; pointer-events:none}
-  .lab{
-    position:absolute; left:50%; top:50%; transform-origin:center;
-    --r: calc(var(--W) * .34); --theta: 0deg;
-    transform:translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r)));
+  .labs{position:absolute; inset:0; z-index:3; pointer-events:none}
+  .lab{ position:absolute; left:50%; top:50%; transform-origin:center; --r: calc(var(--W) * .34); --theta: 0deg;
+        transform:translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r))); }
+  .lab::before{
+    content:""; position:absolute; left:50%; top:50%; width:66px; height:66px; border-radius:50%;
+    transform:translate(-50%,-50%); background:radial-gradient(circle at 40% 35%, #00000035 0 20%, #00000018 50%, transparent 70%);
   }
-  .lab img{ width:58px; height:58px; object-fit:contain; display:block; filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); }
-  .lab.a{ --theta:   0deg; }  .lab.b{ --theta:  45deg; }
-  .lab.c{ --theta:  90deg; }  .lab.d{ --theta: 135deg; }
-  .lab.e{ --theta: 180deg; }  .lab.f{ --theta: 225deg; }
-  .lab.g{ --theta: 270deg; }  .lab.h{ --theta: 315deg; }
+  .lab img{ position:relative; width:60px; height:60px; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.45)); }
+  .lab.a{ --theta:   0deg; } .lab.b{ --theta:  45deg; }
+  .lab.c{ --theta:  90deg; } .lab.d{ --theta: 135deg; }
+  .lab.e{ --theta: 180deg; } .lab.f{ --theta: 225deg; }
+  .lab.g{ --theta: 270deg; } .lab.h{ --theta: 315deg; }
 
-  /* Center LOGO hub — now DARK plate so logo pops */
+  /* Center logo hub — FIXED position: no movement on click */
   .hub{
-    position:absolute; z-index:9; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:calc(var(--W)*.32); height:calc(var(--W)*.32); max-width:128px; max-height:128px;
+    position:absolute; z-index:6; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:calc(var(--W)*.30); height:calc(var(--W)*.30); max-width:132px; max-height:132px;
     border-radius:50%; cursor:pointer;
-    background:
-      radial-gradient(circle at 60% 40%, #1f2450 0 25%, #101432 55%, #0a0d22 100%); /* dark plate */
-    box-shadow:
-      inset 0 10px 18px rgba(255,255,255,.08),
-      inset 0 -14px 22px rgba(0,0,0,.55),
-      0 10px 22px rgba(0,0,0,.55),
-      0 0 22px rgba(120,115,245,.25);
-    display:grid; place-items:center; overflow:hidden;
-    transition:transform .15s ease, filter .2s ease;
+    background:radial-gradient(circle at 60% 40%, #21264f 0 25%, #12163a 55%, #0a0d22 100%);
+    box-shadow:inset 0 10px 18px rgba(255,255,255,.06), inset 0 -14px 22px rgba(0,0,0,.6),
+               0 12px 24px rgba(0,0,0,.55), 0 0 22px rgba(120,115,245,.25);
+    display:grid; place-items:center; overflow:hidden; transition:filter .2s ease;
   }
-  .hub:hover{filter:brightness(1.06); transform:translate(-50%,-50%) scale(1.03)}
-  .hub .shine{
-    position:absolute; inset:-30%;
-    background:conic-gradient(from 0deg,#ffffff25 0 8%, #0000 8% 25%, #ffffff18 25% 33%, #0000 33% 50%, #ffffff12 50% 58%, #0000 58% 100%);
-    animation:orbit 3.2s linear infinite; pointer-events:none;
+  .hub:hover{filter:brightness(1.06)}
+  .hub:active{filter:brightness(1.02)}           /* ← no translate/scale */
+  .hub:focus-visible{outline:2px solid #8aa1ff; outline-offset:2px}
+  .hub .shine{ position:absolute; inset:-30%;
+    background:conic-gradient(from 0deg,#ffffff18 0 8%, #0000 8% 25%, #ffffff14 25% 33%, #0000 33% 50%, #ffffff10 50% 58%, #0000 58% 100%);
+    pointer-events:none;
   }
-  .hub img.logo{
-    width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55));
-    animation:wobble 2.2s ease-in-out infinite; /* idle wobble */
-  }
-  @keyframes wobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.03)}}
+  .hub img{ width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55)); }
 
-  /* During spinning: gentle rocking, NOT full 360 */
-  @keyframes hubRock {
-    0%   { transform: rotate(-8deg) }
-    50%  { transform: rotate(  8deg) }
-    100% { transform: rotate(-8deg) }
-  }
-  .wheelWrap.is-spinning .hub img.logo{
-    animation: hubRock 1.2s ease-in-out infinite !important;
-    transform-origin:50% 50%;
-    filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));
-  }
+  /* ===== Modal ===== */
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:20}
+  .modal.show{display:flex}
+  .backdrop{position:absolute; inset:0; background:rgba(5,7,18,.80); backdrop-filter:blur(2px)}
+  .win{position:relative; z-index:1; width:min(580px,92vw); color:#fff; border-radius:18px; padding:24px 20px 18px; text-align:center;
+       background:linear-gradient(180deg,#2e1027,#1a113b); box-shadow:0 24px 68px rgba(0,0,0,.65), inset 0 0 0 1px #3a1537; overflow:visible; isolation:isolate;}
+  .xbtn{position:absolute; right:10px; top:10px; border:0; width:36px; height:36px; border-radius:50%; color:#fff; background:rgba(255,255,255,.14); cursor:pointer}
+  .badge{display:inline-block; padding:8px 12px; border-radius:999px; font-weight:900; letter-spacing:.3px; background:linear-gradient(90deg,var(--rb-red),var(--rb-purple)); box-shadow:0 8px 18px rgba(255,46,85,.35); margin-top:6px}
+  .prizeTop{width:120px; height:120px; object-fit:contain; display:block; margin:6px auto 2px; filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
+  .title{font-size:1.7rem; font-weight:900; margin:8px 0 8px}
+  .highlight{color:#ffe25f; text-shadow:0 1px 0 #8a5f00}
+  .codeRow{display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:12px}
+  .codeInp{flex:1 1 260px; min-width:220px; padding:12px; border-radius:12px; border:1px solid #3a3e86; background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
+  .copyBtn{padding:12px 18px}
 
-  /* “Press” feedback on hub */
-  .hub:active { transform: translate(-50%,-50%) scale(0.98); }
+  /* outward “fly” tokens */
+  .fly{position:absolute; width:110px; height:110px; object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
+  @keyframes flyOutA{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-120px,-80px) scale(1.1) rotate(-15deg);opacity:.85}100%{transform:translate(-240px,-160px) scale(1.2) rotate(-25deg);opacity:0}}
+  @keyframes flyOutB{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(120px,-80px) scale(1.1) rotate(15deg);opacity:.85}100%{transform:translate(240px,-160px) scale(1.2) rotate(25deg);opacity:0}}
+  @keyframes flyOutC{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-80px,100px) scale(1.1) rotate(10deg);opacity:.85}100%{transform:translate(-160px,200px) scale(1.2) rotate(20deg);opacity:0}}
+  @keyframes flyOutD{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(80px,100px) scale(1.1) rotate(-10deg);opacity:.85}100%{transform:translate(160px,200px) scale(1.2) rotate(-20deg);opacity:0}}
+  .fly.one{left:0; top:10%} .fly.two{right:0; top:20%} .fly.three{left:0; bottom:0} .fly.four{right:0; bottom:0}
 
-  /* Reveal/code */
-  .reveal{opacity:0; visibility:hidden; margin-top:14px; border:1px solid var(--ring);
-          border-radius:12px; background:#10122b; padding:12px; transition:opacity .3s ease}
-  .reveal.show{opacity:1; visibility:visible}
-  .codebox{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-  .codebox .label{flex:0 0 auto; font-size:.95rem}
-  .code{flex:1 1 220px; min-width:180px; padding:10px; border-radius:10px; border:1px solid var(--ring);
-        background:#0f1128; color:#f2f3ff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
-  .copynote{margin-top:6px; color:#aeb2ef; font-size:.85rem}
-  .ok{display:none; color:#1dd1a1}
+  /* small toast for copy success */
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    padding:10px 14px; border-radius:10px; font-weight:700; color:#0b0e22;
+    background:linear-gradient(90deg,#9cff9a,#4dffcf);
+    box-shadow:0 10px 26px rgba(0,0,0,.35);
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:40;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-<div class="ri-spin-masc2">
-  <div class="ri-card" id="card" data-done="0">
-    <h2 class="ri-title"><span class="ri-grad">VIP Day</span> – Spin the Wheel 🎡</h2>
-    <p class="ri-sub">Tap to spin and reveal your code.</p>
+  <div class="card" id="card" data-done="0">
+    <h2><span class="grad">VIP Day</span> – Spin the Wheel 🎡</h2>
+    <p class="sub">Tap the button or the center logo to spin and reveal your voucher.</p>
 
-    <button class="spinbtn" id="spinBtn">Spin Now</button>
+    <button class="btn" id="spinBtn">Spin Now</button>
 
-    <div class="wheelWrap idle" id="wrap">
+    <div class="wrap" id="wrap">
+      <div class="halo" aria-hidden="true"></div>
       <div class="pointer"></div>
-      <!-- idle orbit accent -->
-      <div class="orbit"></div>
 
       <div class="wheel" id="wheel">
-        <div class="separators"></div>
-
-        <!-- glowing bulbs (rotate in idle) -->
+        <div class="seps"></div>
         <div class="bulbs">
           <i></i><i></i><i></i><i></i><i></i><i></i>
           <i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
 
-        <!-- 8 reward icons -->
+        <!-- 8 rewards (4 × 2) -->
         <div class="labs">
           <div class="lab a"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
           <div class="lab b"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
@@ -280,146 +251,140 @@
         </div>
       </div>
 
-      <!-- Logo hub (clickable) -->
-      <div class="hub" id="hub" title="Spin">
+      <!-- Center logo hub (click to spin) -->
+      <button class="hub" id="hub" aria-label="Spin the wheel">
         <div class="shine"></div>
-        <img class="logo" alt="RicoBet" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png">
-      </div>
-    </div>
-
-    <div class="reveal" id="reveal">
-      <div class="codebox">
-        <span class="label" id="outcomeLabel">🎉 Your VIP code:</span>
-        <input id="code" class="code" type="text" value="" readonly>
-        <button class="copybtn" id="copyBtn">Copy</button>
-      </div>
-      <div class="copynote"><span class="tip">Tap Copy or long-press.</span> <span class="ok" id="copied">Copied ✔</span></div>
+        <img alt="RicoBet Logo" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png">
+      </button>
     </div>
   </div>
-</div>
+
+  <!-- Win Modal -->
+  <div class="modal" id="modal">
+    <div class="backdrop"></div>
+    <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+      <button class="xbtn" id="closeModal" aria-label="Close">✕</button>
+
+      <!-- Outward flying tokens -->
+      <img class="fly one"   src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
+      <img class="fly two"   src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
+      <img class="fly three" src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
+      <img class="fly four"  src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
+
+      <img class="prizeTop" alt="RicoBet Prize" src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png">
+      <div class="badge">YOU WIN</div>
+      <div id="winTitle" class="title"><span class="highlight" id="winName">Reward</span> Unlocked</div>
+
+      <div class="codeRow">
+        <input id="codeModal" class="codeInp" value="" readonly>
+        <button class="btn copyBtn" id="copyModal">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied ✔</div>
 
 <script>
 (function(){
   const wheel   = document.getElementById('wheel');
-  const wrap    = document.getElementById('wrap');
   const spinBtn = document.getElementById('spinBtn');
   const hub     = document.getElementById('hub');
-  const codeEl  = document.getElementById('code');
-  const reveal  = document.getElementById('reveal');
-  const copied  = document.getElementById('copied');
-  const copyBtn = document.getElementById('copyBtn');
-  const outcomeLabel = document.getElementById('outcomeLabel');
+  const modal   = document.getElementById('modal');
+  const closeM  = document.getElementById('closeModal');
+  const copyM   = document.getElementById('copyModal');
+  const codeM   = document.getElementById('codeModal');
+  const winName = document.getElementById('winName');
+  const toast   = document.getElementById('toast');
   const card    = document.getElementById('card');
 
-  // 8 outcomes (duplicated rewards)
   const OUTCOMES = [
-    { code:'VSTAR', name:'Free Spins',   angle:   0 },
-    { code:'AURA',  name:'Lucky Ticket', angle:  45 },
-    { code:'CHAMP', name:'VIP Bonus',    angle:  90 },
-    { code:'VIPGO', name:'Mystery',      angle: 135 },
-    { code:'VSTAR', name:'Free Spins',   angle: 180 },
-    { code:'AURA',  name:'Lucky Ticket', angle: 225 },
-    { code:'CHAMP', name:'VIP Bonus',    angle: 270 },
-    { code:'VIPGO', name:'Mystery',      angle: 315 }
+    { code:'AURA',  name:'AURA',  angle:  0 },
+    { code:'VSTAR', name:'VSTAR', angle: 45 },
+    { code:'CHAMP', name:'CHAMP', angle: 90 },
+    { code:'VIPGO', name:'VIPGO', angle:135 },
+    { code:'AURA',  name:'AURA',  angle:180 },
+    { code:'VSTAR', name:'VSTAR', angle:225 },
+    { code:'CHAMP', name:'CHAMP', angle:270 },
+    { code:'VIPGO', name:'VIPGO', angle:315 }
   ];
 
-  const KEY_DONE='rb_spin_done', KEY_CODE='rb_spin_code', KEY_IDX='rb_spin_idx';
+  const KEY_DONE='rb_spin_done';
+  const KEY_CODE='rb_spin_code';
+  const KEY_IDX ='rb_spin_idx';
 
-  // Reusable click animation on buttons
-  function addClickAnim(el){
-    if(!el) return;
-    el.addEventListener('click',()=>{
-      el.classList.remove('clicked'); void el.offsetWidth;
-      el.classList.add('clicked');
-      setTimeout(()=>el.classList.remove('clicked'),350);
+  const pop = el => { if(!el) return; el.classList.remove('clicked'); void el.offsetWidth; el.classList.add('clicked'); setTimeout(()=>el.classList.remove('clicked'),350); };
+  [spinBtn, copyM, hub].forEach(el => el && el.addEventListener('click', ()=>pop(el)));
+
+  async function copyTxt(v){
+    try{
+      if(navigator.clipboard){ await navigator.clipboard.writeText(v); }
+      else{ const t=document.createElement('textarea'); t.value=v; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+      copyM.textContent = 'Copied ✔';
+      setTimeout(()=>{ copyM.textContent='Copy'; },1400);
+      toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
+    }catch(e){ alert('Copy failed. Please long-press and copy manually.'); }
+  }
+  copyM.addEventListener('click', ()=>copyTxt(codeM.value));
+
+  function showModal(code, name){
+    codeM.value = code;
+    winName.textContent = name;
+    modal.classList.add('show');
+    const [a,b,c,d] = modal.querySelectorAll('.fly');
+    [a,b,c,d].forEach(el=>{ el.style.animation='none'; el.style.opacity='1'; });
+    requestAnimationFrame(()=>{
+      a.style.animation='flyOutA 4s ease-out forwards';
+      b.style.animation='flyOutB 4s ease-out forwards .3s';
+      c.style.animation='flyOutC 4s ease-out forwards .6s';
+      d.style.animation='flyOutD 4s ease-out forwards .9s';
     });
   }
-  addClickAnim(spinBtn);
-  addClickAnim(copyBtn);
-  addClickAnim(hub);
+  const hideModal=()=>modal.classList.remove('show');
+  closeM.addEventListener('click', hideModal);
+  modal.querySelector('.backdrop').addEventListener('click', hideModal);
 
-  // Make hub act like the spin button + keyboard accessible
-  if (hub) {
-    hub.setAttribute('role','button');
-    hub.setAttribute('tabindex','0');
-    hub.setAttribute('aria-label','Spin the wheel');
-    const triggerSpin = (e) => {
-      e.preventDefault();
-      if (card.getAttribute('data-done') === '1') return;
-      spinBtn.click();
-    };
-    hub.addEventListener('click', triggerSpin);
-    hub.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') triggerSpin(e);
-    });
-  }
-
-  // Restore if already played
+  // One-spin restore
   if(localStorage.getItem(KEY_DONE)==='1'){
-    const idx=parseInt(localStorage.getItem(KEY_IDX),10);
-    if(!isNaN(idx) && OUTCOMES[idx]){
-      const o=OUTCOMES[idx];
+    const idx = parseInt(localStorage.getItem(KEY_IDX),10);
+    const code= localStorage.getItem(KEY_CODE);
+    if(!Number.isNaN(idx) && code){
+      const o = OUTCOMES[idx % OUTCOMES.length] || {name:'Reward', angle:0, code};
       wheel.style.transform='rotate('+o.angle+'deg)';
-      codeEl.value=o.code;
-      outcomeLabel.textContent='🎉 '+o.name+' — your VIP code:';
-      reveal.classList.add('show');
-      spinBtn.disabled=true;
+      spinBtn.disabled = true;
       card.setAttribute('data-done','1');
-      wrap.classList.remove('idle');
-      wrap.classList.add('is-spinning'); // pause idle ornaments (logo keeps rocking)
+      showModal(code, o.name);
     }
   }
 
-  function pick(){ return Math.floor(Math.random()*OUTCOMES.length); }
+  const pick=()=>Math.floor(Math.random()*OUTCOMES.length);
 
-  function spinTo(idx){
-    const o=OUTCOMES[idx];
-    const turns=4+Math.floor(Math.random()*3);
-    const final=turns*360+o.angle;
-    const over=final+22;
+  // 2–3 turns only
+  function triggerSpin(){
+    if(card.getAttribute('data-done')==='1') return;
+    spinBtn.disabled = true;
 
-    // pause idle ornaments while spinning (logo will rock, not 360-spin)
-    wrap.classList.add('is-spinning'); wrap.classList.remove('idle');
+    const idx = pick();
+    const o   = OUTCOMES[idx];
+    const turns = 2 + Math.floor(Math.random()*2); // 2..3
+    const final = turns*360 + o.angle;
+    const over  = final + 24;
 
-    wheel.style.transition='transform 2.6s cubic-bezier(.22,.61,.36,1)';
+    wheel.style.transition='transform 1.9s cubic-bezier(.22,.61,.36,1)';
     wheel.style.transform='rotate('+over+'deg)';
-    setTimeout(function(){
-      wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
-      wheel.style.transform='rotate('+final+'deg)';
-    },2600);
+    setTimeout(()=>{ wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)'; wheel.style.transform='rotate('+final+'deg)'; },1900);
 
-    setTimeout(function(){
-      codeEl.value=o.code;
-      outcomeLabel.textContent='🎉 '+o.name+' — your VIP code:';
-      reveal.classList.add('show');
+    setTimeout(()=>{
       localStorage.setItem(KEY_DONE,'1');
-      localStorage.setItem(KEY_CODE,o.code);
-      localStorage.setItem(KEY_IDX,idx);
+      localStorage.setItem(KEY_IDX, String(idx));
+      localStorage.setItem(KEY_CODE, o.code);
       card.setAttribute('data-done','1');
-    },3300);
+      showModal(o.code, o.name);
+    },2600);
   }
 
-  if(spinBtn){
-    spinBtn.addEventListener('click',function(e){
-      e.preventDefault();
-      if(card.getAttribute('data-done')==='1')return;
-      spinBtn.disabled=true;
-      const idx=pick();
-      spinTo(idx);
-    });
-  }
-
-  if(copyBtn){
-    copyBtn.addEventListener('click',async function(){
-      const txt=codeEl.value; if(!txt)return;
-      try{
-        if(navigator.clipboard){ await navigator.clipboard.writeText(txt); }
-        else{ codeEl.select(); document.execCommand('copy'); }
-        copied.style.display='inline';
-        setTimeout(()=>{copied.style.display='none';},1500);
-      }catch(e){ alert('Copy failed. Please long-press the code.'); }
-    });
-  }
+  spinBtn.addEventListener('click', (e)=>{ e.preventDefault(); triggerSpin(); });
+  hub.addEventListener('click',   (e)=>{ e.preventDefault(); triggerSpin(); });
+  hub.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') {e.preventDefault(); triggerSpin();} });
 })();
 </script>
 </body>
