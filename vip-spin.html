@@ -245,12 +245,87 @@
   .copyBtn{padding:12px 18px}
 
   /* outward “fly” tokens */
-  .fly{position:absolute; width:110px; height:110px; object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
-  @keyframes flyOutA{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-120px,-80px) scale(1.1) rotate(-15deg);opacity:.85}100%{transform:translate(-240px,-160px) scale(1.2) rotate(-25deg);opacity:0}}
-  @keyframes flyOutB{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(120px,-80px) scale(1.1) rotate(15deg);opacity:.85}100%{transform:translate(240px,-160px) scale(1.2) rotate(25deg);opacity:0}}
-  @keyframes flyOutC{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-80px,100px) scale(1.1) rotate(10deg);opacity:.85}100%{transform:translate(-160px,200px) scale(1.2) rotate(20deg);opacity:0}}
-  @keyframes flyOutD{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(80px,100px) scale(1.1) rotate(-10deg);opacity:.85}100%{transform:translate(160px,200px) scale(1.2) rotate(-20deg);opacity:0}}
-  .fly.one{left:0; top:10%} .fly.two{right:0; top:20%} .fly.three{left:0; bottom:0} .fly.four{right:0; bottom:0}
+/* --- Fly-out tokens with lightning streaks --- */
+.fly{
+  position:absolute; width:100px; height:100px; /* ↓ smaller base */
+  display:grid; place-items:center;
+  filter:drop-shadow(0 14px 20px rgba(0,0,0,.5));
+  opacity:0; pointer-events:none; z-index:2;
+}
+.fly img{ width:100%; height:100%; object-fit:contain }
+
+/* Lightning/streak beam (CSS only, no images) */
+.fly .beam{
+  position:absolute; inset:auto;
+  width:220px; height:2px; left:-12px; top:50%;
+  transform:translateY(-50%) skewX(-12deg);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.0) 0%,
+                           rgba(255,247,180,.85) 30%,
+                           rgba(255,214,90,.65) 60%,
+                           rgba(255,145,0,.0) 100%);
+  box-shadow:
+    0 0 12px rgba(255,231,130,.9),
+    0 0 24px rgba(255,210,70,.7);
+  border-radius:999px;
+  opacity:0; filter:blur(0.6px);        /* slight motion blur */
+}
+
+/* glow pulses around the icon as it flies */
+@keyframes flyGlow { 0%,100%{filter:drop-shadow(0 12px 18px rgba(255,200,60,.35))}
+                      50%   {filter:drop-shadow(0 14px 24px rgba(255,220,120,.65))} }
+.fly img { animation:flyGlow 1.2s ease-in-out infinite }
+
+/* Paths (tuned to feel like those diagonal, beam-y exits) */
+@keyframes flyOutA{
+  0%{transform:translate(0,0) scale(.72) rotate(0);opacity:0}
+  10%{opacity:1}
+  60%{transform:translate(-110px,-70px) scale(.96) rotate(-12deg)}
+  100%{transform:translate(-220px,-150px) scale(1.06) rotate(-20deg);opacity:0}
+}
+@keyframes flyOutB{
+  0%{transform:translate(0,0) scale(.72) rotate(0);opacity:0}
+  10%{opacity:1}
+  60%{transform:translate(110px,-70px) scale(.96) rotate(12deg)}
+  100%{transform:translate(220px,-150px) scale(1.06) rotate(20deg);opacity:0}
+}
+@keyframes flyOutC{
+  0%{transform:translate(0,0) scale(.72) rotate(0);opacity:0}
+  10%{opacity:1}
+  60%{transform:translate(-70px,90px) scale(.96) rotate(9deg)}
+  100%{transform:translate(-150px,180px) scale(1.06) rotate(18deg);opacity:0}
+}
+@keyframes flyOutD{
+  0%{transform:translate(0,0) scale(.72) rotate(0);opacity:0}
+  10%{opacity:1}
+  60%{transform:translate(70px,90px) scale(.96) rotate(-9deg)}
+  100%{transform:translate(150px,180px) scale(1.06) rotate(-18deg);opacity:0}
+}
+
+/* stagger positions like before */
+.fly.one{left:0; top:10%}
+.fly.two{right:0; top:20%}
+.fly.three{left:0; bottom:0}
+.fly.four{right:0; bottom:0}
+
+/* Beam appear/disappear synced with fly animation */
+@keyframes beamFlash {
+  0%{opacity:0; transform:translateY(-50%) translateX(-18px) scaleX(.6)}
+  10%{opacity:1}
+  60%{opacity:.9}
+  100%{opacity:0; transform:translateY(-50%) translateX(120px) scaleX(1.1)}
+}
+.fly.animate .beam{ animation:beamFlash 0.9s ease-out forwards }
+
+/* --- MOBILE TUNING --- */
+@media (max-width: 480px){
+  .fly{ width:70px; height:70px; }                 /* smaller icons on phones */
+  .fly .beam{ width:160px; left:-10px; }           /* shorter beam */
+  .win{ padding:18px 14px 14px; border-radius:14px; }
+  .title{ font-size:1.4rem; }
+  .codeInp{ font-size:.95rem; }
+}
+
 
   /* copy toast */
   .toast{
@@ -309,11 +384,23 @@
     <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
       <button class="xbtn" id="closeModal" aria-label="Close">✕</button>
 
-      <img class="fly one"   src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
-      <img class="fly two"   src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
-      <img class="fly three" src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
-      <img class="fly four"  src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
-
+     <!-- replace the four <img class="fly ..."> with this structure -->
+<div class="fly one">
+  <span class="beam"></span>
+  <img src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
+</div>
+<div class="fly two">
+  <span class="beam"></span>
+  <img src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
+</div>
+<div class="fly three">
+  <span class="beam"></span>
+  <img src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
+</div>
+<div class="fly four">
+  <span class="beam"></span>
+  <img src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
+</div>
       <img class="prizeTop" alt="RicoBet Prize" src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png">
       <div class="badge">YOU WIN</div>
       <div id="winTitle" class="title"><span class="highlight" id="winName">Reward</span> Unlocked</div>
@@ -362,10 +449,7 @@
   async function copyTxt(v){
     try{
       if(navigator.clipboard){ await navigator.clipboard.writeText(v); }
-      else{
-        const t=document.createElement('textarea'); t.value=v;
-        document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-      }
+      else{ const t=document.createElement('textarea'); t.value=v; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
       copyM.textContent = 'Copied ✔';
       setTimeout(()=>{ copyM.textContent='Copy'; },1400);
       toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
@@ -387,22 +471,8 @@
     });
   }
   const hideModal=()=>modal.classList.remove('show');
-
-  /* 🔔 NEW: tell parent page to close the iframe */
-  function notifyParentClose(reason){
-    try{
-      window.parent.postMessage({
-        source: 'ricobet-spin',
-        action: 'closeIframe',
-        reason,
-        code: codeM.value || ''
-      }, '*');
-    }catch(e){}
-  }
-
-  /* Close (✕) and backdrop now also ask parent to remove iframe */
-  closeM.addEventListener('click', () => { hideModal(); notifyParentClose('close-button'); });
-  modal.querySelector('.backdrop').addEventListener('click', () => { hideModal(); notifyParentClose('backdrop'); });
+  closeM.addEventListener('click', hideModal);
+  modal.querySelector('.backdrop').addEventListener('click', hideModal);
 
   // One-spin restore
   if(localStorage.getItem(KEY_DONE)==='1'){
@@ -424,6 +494,7 @@
     if(card.getAttribute('data-done')==='1') return;
     spinBtn.disabled = true;
 
+    // pause idle ornaments during spin
     wrap.classList.remove('idle');
     wrap.classList.add('is-spinning');
 
@@ -443,6 +514,7 @@
       localStorage.setItem(KEY_CODE, o.code);
       card.setAttribute('data-done','1');
 
+      // resume idle motion after result shows
       wrap.classList.remove('is-spinning');
       wrap.classList.add('idle');
 
@@ -455,6 +527,6 @@
   hub.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') {e.preventDefault(); triggerSpin();} });
 })();
 </script>
-
 </body>
 </html>
+
