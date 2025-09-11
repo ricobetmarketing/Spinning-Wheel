@@ -7,54 +7,43 @@
 <style>
   :root{
     --text:#f6f7ff; --dim:#cfd1ff;
-    --rb-red:#ff2e55; --rb-pink:#ff6ec4; --rb-purple:#6c58ff; --rb-deep:#0a0e21;
+    --rb-red:#ff2e55; --rb-pink:#ff6ec4; --rb-purple:#6c58ff;
     --gold1:#ffd36b; --gold2:#ffb436; --gold3:#ffcf7a; --warn:#ffe600;
     --wedgeDark:#ff7b44; --wedgeLight:#ffc86a;
   }
-
   *{box-sizing:border-box}
+
+  /* ===== PAGE BACKGROUND (static) ===== */
   body{
     margin:0; color:var(--text);
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     min-height:100dvh; display:grid; place-items:center; padding:18px;
-
-    /* Rich, 3D-looking background */
-    background:
-      radial-gradient(1400px 900px at 50% -10%, #ff3e6a1f 0%, #0000 60%),
-      radial-gradient(1100px 800px at 50% 30%, #1a123a 0%, #121031 55%, #0b0e22 100%),
-      radial-gradient(120% 70% at 50% 110%, #000000aa, #0000 60%);
+    background:url("https://ricobr.ft-crm.com/media-api/serve/b6c73de3-7fcb-4ee1-8188-0c0f6542806c_WY_Mascott_Icon.png") center 30%/cover no-repeat fixed;
+    position:relative; overflow-x:hidden;
   }
-  /* faint ambient rings */
-  body::before{
-    content:""; position:fixed; inset:0; pointer-events:none; opacity:.32;
-    background:
-      radial-gradient(40% 40% at 50% 50%, #ffffff10 0 1px, #0000 2px) 50% 48%/42% 42% no-repeat,
-      radial-gradient(40% 40% at 50% 50%, #ffffff08 0 1px, #0000 2px) 50% 48%/54% 54% no-repeat,
-      radial-gradient(40% 40% at 50% 50%, #ffffff06 0 1px, #0000 2px) 50% 48%/66% 66% no-repeat;
+  body::before{ /* soft vignette */
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(140% 90% at 50% 30%, #0008 0%, #0009 45%, #000b 100%);
   }
 
+  /* ===== Header ===== */
   .card{
-    width:min(760px,94vw); text-align:center;
-    background:linear-gradient(180deg,#191b46,#0f1230);
-    border:1px solid #2a2e68; border-radius:20px;
-    box-shadow:0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 #2f3372;
-    padding:18px 16px 26px;
+    position:relative; z-index:2; width:min(760px,94vw); text-align:center;
+    background:transparent; border:0; border-radius:20px; box-shadow:none; padding:18px 16px 10px;
   }
   h2{margin:6px 0 4px; font-size:1.14rem}
   .grad{background:linear-gradient(90deg,var(--rb-pink),var(--rb-purple)); -webkit-background-clip:text; background-clip:text; color:transparent}
   .sub{margin:0 10px 14px; color:var(--dim)}
 
-  /* ===== Buttons (raised + animated) ===== */
+  /* ===== Buttons ===== */
   .btn{
-    position:relative; z-index:10; /* keep ABOVE wheel */
-    display:inline-block; border:0; cursor:pointer; user-select:none;
-    color:#0e0f23; font-weight:800; border-radius:999px; overflow:hidden;
+    position:relative; z-index:10; display:inline-flex; align-items:center; gap:8px;
+    border:0; cursor:pointer; user-select:none; color:#0e0f23; font-weight:800;
+    border-radius:999px; overflow:hidden;
     background:linear-gradient(90deg,var(--rb-pink),var(--rb-purple));
-    padding:14px 24px;
-    box-shadow:0 10px 26px rgba(120,115,245,.45), 0 10px 22px rgba(0,0,0,.35);
+    padding:14px 24px; box-shadow:0 10px 26px rgba(120,115,245,.45), 0 10px 22px rgba(0,0,0,.35);
     transition:transform .15s ease, filter .2s ease, box-shadow .2s ease;
-    animation:btnPulse 2.2s ease-in-out infinite;
-    margin-bottom:14px; /* extra space so it never tucks under */
+    animation:btnPulse 2.2s ease-in-out infinite; margin-bottom:14px;
   }
   .btn:hover{filter:brightness(1.08)}
   .btn:active{transform:scale(.98)}
@@ -72,12 +61,27 @@
   .clicked{animation:clickPop .35s ease}
 
   /* ===== Wheel ===== */
-  .wrap{ --W:min(84vw,480px); position:relative; display:grid; place-items:center; margin:8px auto 6px }
-  .wrap::after{ /* shadow for lift */
-    content:""; position:absolute; width:78%; height:18px; bottom:-12px; left:50%; transform:translateX(-50%);
-    background:radial-gradient(closest-side, rgba(0,0,0,.52), rgba(0,0,0,0)); filter:blur(6px);
+  .wrap{ --W:min(84vw,480px); position:relative; display:grid; place-items:center; margin:8px auto 6px; z-index:2 }
+  /* LIGHT/HALO behind wheel (with slow breathing) */
+  .wrap .halo{
+    position:absolute; z-index:0; width:calc(var(--W)*1.28); height:calc(var(--W)*1.28); border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 45%, #ffefb49c 0 22%, #ffcf7a55 35%, #0000 60%),
+      radial-gradient(circle at 45% 60%, #ffffff40 0 10%, #0000 45%);
+    filter:blur(10px);
+    animation:haloBreath 6s ease-in-out infinite;
   }
+  @keyframes haloBreath{0%,100%{transform:scale(.98); opacity:.9}50%{transform:scale(1.02); opacity:1}}
 
+  /* idle/spin state to pause ornaments during spin */
+  .wrap.idle .outerRing,
+  .wrap.idle .bulbs,
+  .wrap.idle .hub { animation-play-state:running; }
+  .wrap.is-spinning .outerRing,
+  .wrap.is-spinning .bulbs,
+  .wrap.is-spinning .hub { animation-play-state:paused; }
+
+  /* Outer accent ring – slow clockwise (idle) */
   .outerRing{
     position:absolute; inset:calc(var(--W)*-.24); border-radius:50%; z-index:0; pointer-events:none;
     background:
@@ -130,21 +134,18 @@
     box-shadow:inset 0 0 0 2px #171a38, inset 0 0 30px rgba(0,0,0,.35);
   }
 
-  .seps{position:absolute; inset:0; pointer-events:none; z-index:3}
+  /* separators */
+  .seps{position:absolute; inset:0; pointer-events:none; z-index:1}
   .seps::before,.seps::after{
     content:""; position:absolute; border-radius:50%;
     -webkit-mask:radial-gradient(circle, transparent var(--cut,56%), #000 calc(var(--cut,56%) + 1%));
             mask:radial-gradient(circle, transparent var(--cut,56%), #000 calc(var(--cut,56%) + 1%));
   }
-  .seps::before{ inset:20px; --cut:56%;
-    background:conic-gradient(#7f5200 0 2.8deg, #0000 2.8deg 45deg) repeat;
-    filter:drop-shadow(0 0 2px rgba(255,229,120,.75));
-  }
-  .seps::after{ inset:44px; --cut:45%;
-    background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat; opacity:.7;
-  }
+  .seps::before{ inset:20px; --cut:56%; background:conic-gradient(#7f5200 0 2.8deg, #0000 2.8deg 45deg) repeat; filter:drop-shadow(0 0 2px rgba(255,229,120,.75)); }
+  .seps::after{ inset:44px; --cut:45%; background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat; opacity:.7; }
 
-  .bulbs{position:absolute; inset:-6px; z-index:4; pointer-events:none; animation:bulbSpin 20s linear infinite reverse}
+  /* idle bulbs rotate */
+  .bulbs{position:absolute; inset:-6px; z-index:2; pointer-events:none; animation:bulbSpin 20s linear infinite reverse}
   @keyframes bulbSpin{to{transform:rotate(360deg)}}
   .bulbs i{
     position:absolute; left:50%; top:50%; width:14px; height:14px; border-radius:50%;
@@ -159,31 +160,20 @@
   .bulbs i:nth-child(9){--rot:240deg}  .bulbs i:nth-child(10){--rot:270deg}
   .bulbs i:nth-child(11){--rot:300deg} .bulbs i:nth-child(12){--rot:330deg}
 
-  /* Reward icons (with a soft “coin pad” behind to prevent highlight slash) */
-  .labs{position:absolute; inset:0; z-index:2; pointer-events:none}
-  .lab{
-    position:absolute; left:50%; top:50%; transform-origin:center;
-    --r: calc(var(--W) * .34); --theta: 0deg;
-    transform:translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r)));
-  }
+  .labs{position:absolute; inset:0; z-index:3; pointer-events:none}
+  .lab{ position:absolute; left:50%; top:50%; transform-origin:center; --r: calc(var(--W) * .34); --theta: 0deg;
+        transform:translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r))); }
   .lab::before{
     content:""; position:absolute; left:50%; top:50%; width:66px; height:66px; border-radius:50%;
-    transform:translate(-50%,-50%);
-    background:radial-gradient(circle at 40% 35%, #00000035 0 20%, #00000018 50%, transparent 70%);
-    filter:blur(.2px);
+    transform:translate(-50%,-50%); background:radial-gradient(circle at 40% 35%, #00000035 0 20%, #00000018 50%, transparent 70%);
   }
-  .lab img{
-    position:relative;
-    width:60px; height:60px; object-fit:contain;
-    image-rendering:auto; mix-blend-mode:normal;
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));
-  }
+  .lab img{ position:relative; width:60px; height:60px; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.45)); }
   .lab.a{ --theta:   0deg; } .lab.b{ --theta:  45deg; }
   .lab.c{ --theta:  90deg; } .lab.d{ --theta: 135deg; }
   .lab.e{ --theta: 180deg; } .lab.f{ --theta: 225deg; }
   .lab.g{ --theta: 270deg; } .lab.h{ --theta: 315deg; }
 
-  /* Center logo hub (darker so the logo pops) */
+  /* Center logo hub — slow counter rotation (idle), no movement on click */
   .hub{
     position:absolute; z-index:6; left:50%; top:50%; transform:translate(-50%,-50%);
     width:calc(var(--W)*.30); height:calc(var(--W)*.30); max-width:132px; max-height:132px;
@@ -191,50 +181,51 @@
     background:radial-gradient(circle at 60% 40%, #21264f 0 25%, #12163a 55%, #0a0d22 100%);
     box-shadow:inset 0 10px 18px rgba(255,255,255,.06), inset 0 -14px 22px rgba(0,0,0,.6),
                0 12px 24px rgba(0,0,0,.55), 0 0 22px rgba(120,115,245,.25);
-    display:grid; place-items:center; overflow:hidden; transition:transform .15s ease, filter .2s ease;
+    display:grid; place-items:center; overflow:hidden; transition:filter .2s ease;
+    animation:hubSlow 26s linear infinite reverse;
   }
-  .hub:hover{filter:brightness(1.06); transform:translate(-50%,-50%) scale(1.03)}
-  .hub:active{transform:translate(-50%,-50%) scale(.98)}
+  @keyframes hubSlow{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  .hub:hover{filter:brightness(1.06)}
+  .hub:active{filter:brightness(1.02)}
+  .hub:focus-visible{outline:2px solid #8aa1ff; outline-offset:2px}
   .hub .shine{ position:absolute; inset:-30%;
     background:conic-gradient(from 0deg,#ffffff18 0 8%, #0000 8% 25%, #ffffff14 25% 33%, #0000 33% 50%, #ffffff10 50% 58%, #0000 58% 100%);
     pointer-events:none;
   }
   .hub img{ width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55)); }
 
-  /* ===== Win Modal ===== */
+  /* ===== Modal ===== */
   .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:20}
   .modal.show{display:flex}
   .backdrop{position:absolute; inset:0; background:rgba(5,7,18,.80); backdrop-filter:blur(2px)}
-
-  .win{
-    position:relative; z-index:1; width:min(580px,92vw); color:#fff;
-    border-radius:18px; padding:24px 20px 18px; text-align:center;
-    background:linear-gradient(180deg,#2e1027,#1a113b);
-    box-shadow:0 24px 68px rgba(0,0,0,.65), inset 0 0 0 1px #3a1537;
-    overflow:visible; isolation:isolate;
-  }
-  .xbtn{position:absolute; right:10px; top:10px; border:0; width:36px; height:36px; border-radius:50%;
-        color:#fff; background:rgba(255,255,255,.14); cursor:pointer}
-  .badge{display:inline-block; padding:8px 12px; border-radius:999px; font-weight:900; letter-spacing:.3px;
-         background:linear-gradient(90deg,var(--rb-red),var(--rb-purple)); box-shadow:0 8px 18px rgba(255,46,85,.35); margin-top:6px}
+  .win{position:relative; z-index:1; width:min(580px,92vw); color:#fff; border-radius:18px; padding:24px 20px 18px; text-align:center;
+       background:linear-gradient(180deg,#2e1027,#1a113b); box-shadow:0 24px 68px rgba(0,0,0,.65), inset 0 0 0 1px #3a1537; overflow:visible; isolation:isolate;}
+  .xbtn{position:absolute; right:10px; top:10px; border:0; width:36px; height:36px; border-radius:50%; color:#fff; background:rgba(255,255,255,.14); cursor:pointer}
+  .badge{display:inline-block; padding:8px 12px; border-radius:999px; font-weight:900; letter-spacing:.3px; background:linear-gradient(90deg,var(--rb-red),var(--rb-purple)); box-shadow:0 8px 18px rgba(255,46,85,.35); margin-top:6px}
   .prizeTop{width:120px; height:120px; object-fit:contain; display:block; margin:6px auto 2px; filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
   .title{font-size:1.7rem; font-weight:900; margin:8px 0 8px}
   .highlight{color:#ffe25f; text-shadow:0 1px 0 #8a5f00}
   .codeRow{display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:12px}
-  .codeInp{flex:1 1 260px; min-width:220px; padding:12px; border-radius:12px; border:1px solid #3a3e86;
-           background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
+  .codeInp{flex:1 1 260px; min-width:220px; padding:12px; border-radius:12px; border:1px solid #3a3e86; background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
   .copyBtn{padding:12px 18px}
 
-  /* outward flying tokens */
+  /* outward “fly” tokens */
   .fly{position:absolute; width:110px; height:110px; object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
   @keyframes flyOutA{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-120px,-80px) scale(1.1) rotate(-15deg);opacity:.85}100%{transform:translate(-240px,-160px) scale(1.2) rotate(-25deg);opacity:0}}
   @keyframes flyOutB{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(120px,-80px) scale(1.1) rotate(15deg);opacity:.85}100%{transform:translate(240px,-160px) scale(1.2) rotate(25deg);opacity:0}}
   @keyframes flyOutC{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-80px,100px) scale(1.1) rotate(10deg);opacity:.85}100%{transform:translate(-160px,200px) scale(1.2) rotate(20deg);opacity:0}}
   @keyframes flyOutD{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(80px,100px) scale(1.1) rotate(-10deg);opacity:.85}100%{transform:translate(160px,200px) scale(1.2) rotate(-20deg);opacity:0}}
-  .fly.one{left:0; top:10%}
-  .fly.two{right:0; top:20%}
-  .fly.three{left:0; bottom:0}
-  .fly.four{right:0; bottom:0}
+  .fly.one{left:0; top:10%} .fly.two{right:0; top:20%} .fly.three{left:0; bottom:0} .fly.four{right:0; bottom:0}
+
+  /* copy toast */
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    padding:10px 14px; border-radius:10px; font-weight:700; color:#0b0e22;
+    background:linear-gradient(90deg,#9cff9a,#4dffcf);
+    box-shadow:0 10px 26px rgba(0,0,0,.35);
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:40;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -244,8 +235,9 @@
 
     <button class="btn" id="spinBtn">Spin Now</button>
 
-    <div class="wrap" id="wrap">
-      <div class="outerRing"></div>
+    <div class="wrap idle" id="wrap">
+      <div class="halo" aria-hidden="true"></div>
+      <div class="outerRing" aria-hidden="true"></div>
       <div class="pointer"></div>
 
       <div class="wheel" id="wheel">
@@ -255,7 +247,7 @@
           <i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
 
-        <!-- 8 rewards (4 × 2) -->
+        <!-- rewards -->
         <div class="labs">
           <div class="lab a"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
           <div class="lab b"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
@@ -282,7 +274,6 @@
     <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
       <button class="xbtn" id="closeModal" aria-label="Close">✕</button>
 
-      <!-- Outward flying tokens -->
       <img class="fly one"   src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
       <img class="fly two"   src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly three" src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
@@ -299,9 +290,12 @@
     </div>
   </div>
 
+  <div class="toast" id="toast">Copied ✔</div>
+
 <script>
 (function(){
   const wheel   = document.getElementById('wheel');
+  const wrap    = document.getElementById('wrap');
   const spinBtn = document.getElementById('spinBtn');
   const hub     = document.getElementById('hub');
   const modal   = document.getElementById('modal');
@@ -309,9 +303,9 @@
   const copyM   = document.getElementById('copyModal');
   const codeM   = document.getElementById('codeModal');
   const winName = document.getElementById('winName');
+  const toast   = document.getElementById('toast');
   const card    = document.getElementById('card');
 
-  // 8 outcomes (AURA, VSTAR, CHAMP, VIPGO ×2)
   const OUTCOMES = [
     { code:'AURA',  name:'AURA',  angle:  0 },
     { code:'VSTAR', name:'VSTAR', angle: 45 },
@@ -327,15 +321,16 @@
   const KEY_CODE='rb_spin_code';
   const KEY_IDX ='rb_spin_idx';
 
-  // Click pop feedback
-  function pop(el){ if(!el) return; el.classList.remove('clicked'); void el.offsetWidth; el.classList.add('clicked'); setTimeout(()=>el.classList.remove('clicked'),350); }
+  const pop = el => { if(!el) return; el.classList.remove('clicked'); void el.offsetWidth; el.classList.add('clicked'); setTimeout(()=>el.classList.remove('clicked'),350); };
   [spinBtn, copyM, hub].forEach(el => el && el.addEventListener('click', ()=>pop(el)));
 
-  // Clipboard helper
   async function copyTxt(v){
     try{
       if(navigator.clipboard){ await navigator.clipboard.writeText(v); }
       else{ const t=document.createElement('textarea'); t.value=v; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+      copyM.textContent = 'Copied ✔';
+      setTimeout(()=>{ copyM.textContent='Copy'; },1400);
+      toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
     }catch(e){ alert('Copy failed. Please long-press and copy manually.'); }
   }
   copyM.addEventListener('click', ()=>copyTxt(codeM.value));
@@ -344,22 +339,20 @@
     codeM.value = code;
     winName.textContent = name;
     modal.classList.add('show');
-
-    // kick off outward fly animations each time it opens
     const [a,b,c,d] = modal.querySelectorAll('.fly');
-    a.style.animation = 'none'; b.style.animation = 'none'; c.style.animation = 'none'; d.style.animation = 'none';
+    [a,b,c,d].forEach(el=>{ el.style.animation='none'; el.style.opacity='1'; });
     requestAnimationFrame(()=>{
-      a.style.animation = 'flyOutA 4s ease-out forwards';
-      b.style.animation = 'flyOutB 4s ease-out forwards .3s';
-      c.style.animation = 'flyOutC 4s ease-out forwards .6s';
-      d.style.animation = 'flyOutD 4s ease-out forwards .9s';
+      a.style.animation='flyOutA 4s ease-out forwards';
+      b.style.animation='flyOutB 4s ease-out forwards .3s';
+      c.style.animation='flyOutC 4s ease-out forwards .6s';
+      d.style.animation='flyOutD 4s ease-out forwards .9s';
     });
   }
-  function hideModal(){ modal.classList.remove('show'); }
+  const hideModal=()=>modal.classList.remove('show');
   closeM.addEventListener('click', hideModal);
   modal.querySelector('.backdrop').addEventListener('click', hideModal);
 
-  // Restore if already played
+  // One-spin restore
   if(localStorage.getItem(KEY_DONE)==='1'){
     const idx = parseInt(localStorage.getItem(KEY_IDX),10);
     const code= localStorage.getItem(KEY_CODE);
@@ -372,16 +365,20 @@
     }
   }
 
-  function pick(){ return Math.floor(Math.random()*OUTCOMES.length); }
+  const pick=()=>Math.floor(Math.random()*OUTCOMES.length);
 
-  // Spin (2–3 turns only)
+  // 2–3 turns only
   function triggerSpin(){
     if(card.getAttribute('data-done')==='1') return;
     spinBtn.disabled = true;
 
+    // pause idle ornaments during spin
+    wrap.classList.remove('idle');
+    wrap.classList.add('is-spinning');
+
     const idx = pick();
     const o   = OUTCOMES[idx];
-    const turns = 2 + Math.floor(Math.random()*2); // 2..3 turns
+    const turns = 2 + Math.floor(Math.random()*2); // 2..3
     const final = turns*360 + o.angle;
     const over  = final + 24;
 
@@ -394,15 +391,19 @@
       localStorage.setItem(KEY_IDX, String(idx));
       localStorage.setItem(KEY_CODE, o.code);
       card.setAttribute('data-done','1');
+
+      // resume idle motion after result shows
+      wrap.classList.remove('is-spinning');
+      wrap.classList.add('idle');
+
       showModal(o.code, o.name);
     },2600);
   }
 
   spinBtn.addEventListener('click', (e)=>{ e.preventDefault(); triggerSpin(); });
-  hub.addEventListener('click', (e)=>{ e.preventDefault(); triggerSpin(); });
+  hub.addEventListener('click',   (e)=>{ e.preventDefault(); triggerSpin(); });
   hub.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') {e.preventDefault(); triggerSpin();} });
 })();
 </script>
 </body>
 </html>
-
