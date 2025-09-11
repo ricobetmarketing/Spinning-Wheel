@@ -83,7 +83,7 @@
     background:conic-gradient(from var(--s,0deg),rgba(255,255,255,.28),rgba(255,255,255,0) 18% 65%,rgba(255,255,255,.28));
     mix-blend-mode:screen; animation:haloSweep 16s linear infinite; opacity:.75; filter:blur(6px);
   }
-  @keyframes haloSweep{to{--s:360deg}}
+  @keyframes haloSweep{to{--s:360deg)}}
 
   .pointer{position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%); width:0; height:0; z-index:7;
     border-left:14px solid transparent; border-right:14px solid transparent; border-top:28px solid var(--warn);
@@ -144,9 +144,11 @@
   <div class="card" id="card" data-done="0">
     <h2><span class="grad">VIP Day</span> – Spin the Wheel 🎡</h2>
     <p class="sub">Tap the button or the center logo to spin and reveal your voucher.</p>
-    <button class="btn" id="spinBtn">Spin Now</button>
+    <button class="btn" id="spinBtn" type="button">Spin Now</button>
     <div class="wrap idle" id="wrap">
-      <div class="halo"></div><div class="outerRing"></div><div class="pointer"></div>
+      <div class="halo" aria-hidden="true"></div>
+      <div class="outerRing" aria-hidden="true"></div>
+      <div class="pointer"></div>
       <div class="wheel" id="wheel">
         <div class="labs">
           <div class="lab a"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
@@ -159,21 +161,23 @@
           <div class="lab h"><img alt="Mystery"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
         </div>
       </div>
-      <button class="hub" id="hub"><img alt="RicoBet Logo" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png"></button>
+      <button class="hub" id="hub" type="button" aria-label="Spin the wheel">
+        <img alt="RicoBet Logo" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png">
+      </button>
     </div>
   </div>
 
   <!-- Win Modal -->
   <div class="modal" id="modal">
     <div class="backdrop"></div>
-    <div class="win">
-      <button class="xbtn" id="closeModal">✕</button>
+    <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+      <button class="xbtn" id="closeModal" type="button" aria-label="Close">✕</button>
       <img class="prizeTop" alt="Prize" src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png">
       <div class="badge">YOU WIN</div>
-      <div class="title"><span class="highlight" id="winName">Reward</span> Unlocked</div>
+      <div class="title" id="winTitle"><span class="highlight" id="winName">Reward</span> Unlocked</div>
       <div class="codeRow">
         <input id="codeModal" class="codeInp" value="" readonly>
-        <button class="btn copyBtn" id="copyModal">Copy</button>
+        <button class="btn copyBtn" id="copyModal" type="button">Copy</button>
         <button class="btn redeemBtn" id="redeemBtn" type="button">Redeem</button>
       </div>
     </div>
@@ -181,10 +185,10 @@
 
   <div class="toast" id="toast">Copied ✔</div>
 
-
 <script>
 (function(){
   const wheel=document.getElementById('wheel'),
+        wrap=document.getElementById('wrap'),
         spinBtn=document.getElementById('spinBtn'),
         hub=document.getElementById('hub'),
         modal=document.getElementById('modal'),
@@ -212,7 +216,10 @@
   async function copyTxt(v){
     try{
       if(navigator.clipboard){ await navigator.clipboard.writeText(v); }
-      else{ const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();}
+      else{
+        const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);
+        t.select();document.execCommand('copy');t.remove();
+      }
       copyM.textContent='Copied ✔';
       setTimeout(()=>{ copyM.textContent='Copy'; },1400);
       toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
@@ -233,7 +240,7 @@
     try{
       window.parent.postMessage({action:"closeIframe",code}, "*");
     }catch(e){}
-    // Fallback redirect if not embedded
+    // fallback if not embedded
     if(window.top===window.self){
       window.location.href="/myprofile?code="+encodeURIComponent(code);
     }
@@ -257,16 +264,22 @@
   function triggerSpin(){
     if(card.getAttribute('data-done')==='1') return;
     spinBtn.disabled=true;
+
     const idx=pick(), o=OUTCOMES[idx];
     const turns=2+Math.floor(Math.random()*2);
     const final=turns*360+o.angle, over=final+24;
+
     wheel.style.transition='transform 1.9s cubic-bezier(.22,.61,.36,1)';
     wheel.style.transform='rotate('+over+'deg)';
-    setTimeout(()=>{ wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)'; wheel.style.transform='rotate('+final+'deg)'; },1900);
+    setTimeout(()=>{
+      wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
+      wheel.style.transform='rotate('+final+'deg)';
+    },1900);
+
     setTimeout(()=>{
       localStorage.setItem(KEY_DONE,'1');
-      localStorage.setItem(KEY_IDX', String(idx));
-      localStorage.setItem(KEY_CODE,o.code);
+      localStorage.setItem(KEY_IDX, String(idx));   // ✅ fixed
+      localStorage.setItem(KEY_CODE, o.code);
       card.setAttribute('data-done','1');
       showModal(o.code,o.name);
     },2600);
