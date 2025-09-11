@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RicoBet VIP – Girar & Ganhar</title>
+<title>RicoBet VIP – Gire & Ganhe</title>
 <style>
   :root{
     --text:#f6f7ff; --dim:#cfd1ff;
@@ -21,7 +21,7 @@
     background:url("https://ricobr.ft-crm.com/media-api/serve/b6c73de3-7fcb-4ee1-8188-0c0f6542806c_WY_Mascott_Icon.png") center 30%/cover no-repeat fixed;
     position:relative; overflow-x:hidden;
   }
-  body::before{
+  body::before{ /* vinheta suave */
     content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
     background:radial-gradient(140% 90% at 50% 30%, #0008 0%, #0009 45%, #000b 100%);
   }
@@ -60,8 +60,9 @@
   @keyframes clickPop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
   .clicked{animation:clickPop .35s ease}
 
-  /* ===== Roda ===== */
+  /* ===== Roleta ===== */
   .wrap{ --W:min(84vw,480px); position:relative; display:grid; place-items:center; margin:8px auto 6px; z-index:2 }
+  /* HALO/LUZ atrás da roleta (respiração lenta) */
   .wrap .halo{
     position:absolute; z-index:0; width:calc(var(--W)*1.28); height:calc(var(--W)*1.28); border-radius:50%;
     background:
@@ -79,31 +80,38 @@
   .wrap.is-spinning .bulbs,
   .wrap.is-spinning .hub { animation-play-state:paused; }
 
-  .outerRing{
-    position:absolute;
-    inset:calc(var(--W)*-.16);
-    z-index:0;
-    border-radius:50%;
-    pointer-events:none;
-    background:
-      radial-gradient(closest-side, rgba(255,239,180,.65) 0%, rgba(255,207,122,.35) 45%, rgba(255,207,122,.12) 65%, rgba(0,0,0,0) 75%),
-      radial-gradient(closest-side, rgba(255,255,255,.20) 0%, rgba(255,255,255,0) 55%);
-    filter:blur(12px);
-  }
-  .outerRing::after{
-    content:"";
-    position:absolute; inset:0; border-radius:50%;
-    background:
-      conic-gradient(from var(--s,0deg),
-        rgba(255,255,255,.28),
-        rgba(255,255,255,0) 18% 65%,
-        rgba(255,255,255,.28));
-    mix-blend-mode:screen;
-    animation:haloSweep 16s linear infinite;
-    opacity:.75;
-    filter:blur(6px);
-  }
-  @keyframes haloSweep { to { --s: 360deg; } }
+ /* === Luz atrás da roleta === */
+.outerRing{
+  position:absolute;
+  inset:calc(var(--W)*-.16);
+  z-index:0;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(closest-side,
+      rgba(255,239,180,.65) 0%,
+      rgba(255,207,122,.35) 45%,
+      rgba(255,207,122,.12) 65%,
+      rgba(0,0,0,0) 75%),
+    radial-gradient(closest-side,
+      rgba(255,255,255,.20) 0%,
+      rgba(255,255,255,0) 55%);
+  filter:blur(12px);
+}
+.outerRing::after{
+  content:"";
+  position:absolute; inset:0; border-radius:50%;
+  background:
+    conic-gradient(from var(--s,0deg),
+      rgba(255,255,255,.28),
+      rgba(255,255,255,0) 18% 65%,
+      rgba(255,255,255,.28));
+  mix-blend-mode:screen;
+  animation:haloSweep 16s linear infinite;
+  opacity:.75;
+  filter:blur(6px);
+}
+@keyframes haloSweep { to { --s: 360deg; } }
 
   .pointer{
     position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%);
@@ -146,6 +154,7 @@
     box-shadow:inset 0 0 0 2px #171a38, inset 0 0 30px rgba(0,0,0,.35);
   }
 
+  /* separadores */
   .seps{position:absolute; inset:0; pointer-events:none; z-index:1}
   .seps::before,.seps::after{
     content:""; position:absolute; border-radius:50%;
@@ -155,6 +164,7 @@
   .seps::before{ inset:20px; --cut:56%; background:conic-gradient(#7f5200 0 2.8deg, #0000 2.8deg 45deg) repeat; filter:drop-shadow(0 0 2px rgba(255,229,120,.75)); }
   .seps::after{ inset:44px; --cut:45%; background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat; opacity:.7; }
 
+  /* lâmpadas girando (idle) */
   .bulbs{position:absolute; inset:-6px; z-index:2; pointer-events:none; animation:bulbSpin 20s linear infinite reverse}
   @keyframes bulbSpin{to{transform:rotate(360deg)}}
   .bulbs i{
@@ -183,7 +193,7 @@
   .lab.e{ --theta: 180deg; } .lab.f{ --theta: 225deg; }
   .lab.g{ --theta: 270deg; } .lab.h{ --theta: 315deg; }
 
-  /* Hub (logo central) */
+  /* Hub central — rotação lenta (idle) */
   .hub{
     position:absolute; z-index:6; left:50%; top:50%; transform:translate(-50%,-50%);
     width:calc(var(--W)*.30); height:calc(var(--W)*.30); max-width:132px; max-height:132px;
@@ -219,6 +229,7 @@
   .codeInp{flex:1 1 260px; min-width:220px; padding:12px; border-radius:12px; border:1px solid #3a3e86; background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
   .copyBtn{padding:12px 18px}
 
+  /* ícones que “voam” */
   .fly{position:absolute; width:110px; height:110px; object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
   @keyframes flyOutA{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-120px,-80px) scale(1.1) rotate(-15deg);opacity:.85}100%{transform:translate(-240px,-160px) scale(1.2) rotate(-25deg);opacity:0}}
   @keyframes flyOutB{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(120px,-80px) scale(1.1) rotate(15deg);opacity:.85}100%{transform:translate(240px,-160px) scale(1.2) rotate(25deg);opacity:0}}
@@ -226,6 +237,7 @@
   @keyframes flyOutD{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(80px,100px) scale(1.1) rotate(-10deg);opacity:.85}100%{transform:translate(160px,200px) scale(1.2) rotate(-20deg);opacity:0}}
   .fly.one{left:0; top:10%} .fly.two{right:0; top:20%} .fly.three{left:0; bottom:0} .fly.four{right:0; bottom:0}
 
+  /* toast de cópia */
   .toast{
     position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
     padding:10px 14px; border-radius:10px; font-weight:700; color:#0b0e22;
@@ -239,7 +251,7 @@
 <body>
   <div class="card" id="card" data-done="0">
     <h2><span class="grad">Dia VIP</span> – Gire a Roleta 🎡</h2>
-    <p class="sub">Toque no botão ou no logo central para girar e revelar seu voucher.</p>
+    <p class="sub">Toque no botão ou no logo central para girar e revelar seu código.</p>
 
     <button class="btn" id="spinBtn">Girar Agora</button>
 
@@ -257,14 +269,14 @@
 
         <!-- prêmios -->
         <div class="labs">
-          <div class="lab a"><img alt="Giros Grátis"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
-          <div class="lab b"><img alt="Bilhete da Sorte" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
-          <div class="lab c"><img alt="Bônus VIP"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
-          <div class="lab d"><img alt="Mistério"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
-          <div class="lab e"><img alt="Giros Grátis"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
-          <div class="lab f"><img alt="Bilhete da Sorte" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
-          <div class="lab g"><img alt="Bônus VIP"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
-          <div class="lab h"><img alt="Mistério"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
+          <div class="lab a"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
+          <div class="lab b"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
+          <div class="lab c"><img alt="VIP Bonus"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
+          <div class="lab d"><img alt="Mystery"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
+          <div class="lab e"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
+          <div class="lab f"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
+          <div class="lab g"><img alt="VIP Bonus"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
+          <div class="lab h"><img alt="Mystery"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
         </div>
       </div>
 
@@ -289,16 +301,16 @@
 
       <img class="prizeTop" alt="Prêmio RicoBet" src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png">
       <div class="badge">VOCÊ GANHOU</div>
-      <div id="winTitle" class="title"><span class="highlight" id="winName">Recompensa</span> Desbloqueada</div>
+      <div id="winTitle" class="title"><span class="highlight" id="winName">Prêmio</span> Desbloqueado</div>
 
       <div class="codeRow">
-        <input id="codeModal" class="codeInp" value="" readonly aria-label="Código do voucher">
-        <button class="btn copyBtn" id="copyModal" aria-label="Copiar código">Copiar</button>
+        <input id="codeModal" class="codeInp" value="" readonly>
+        <button class="btn copyBtn" id="copyModal">Copiar</button>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Copiado ✔</div>
+  <div class="toast" id="toast">Copiado ✔</div>
 
 <script>
 (function(){
@@ -332,18 +344,46 @@
   const pop = el => { if(!el) return; el.classList.remove('clicked'); void el.offsetWidth; el.classList.add('clicked'); setTimeout(()=>el.classList.remove('clicked'),350); };
   [spinBtn, copyM, hub].forEach(el => el && el.addEventListener('click', ()=>pop(el)));
 
+  // ---- Função de cópia robusta (funciona em iframes) ----
+  function showCopiedUI(){
+    copyM.textContent = 'Copiado ✔';
+    setTimeout(()=>{ copyM.textContent='Copiar'; },1400);
+    toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
+  }
   async function copyTxt(v){
+    // 1) Caminho legado: textarea + execCommand (melhor p/ iframes)
     try{
-      if(navigator.clipboard){ await navigator.clipboard.writeText(v); }
-      else{
-        const t=document.createElement('textarea'); t.value=v; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-      }
-      copyM.textContent = 'Copiado ✔';
-      setTimeout(()=>{ copyM.textContent='Copiar'; },1400);
-      toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
-    }catch(e){
-      alert('Falha ao copiar. Por favor, pressione e segure para copiar manualmente.');
+      const ta = document.createElement('textarea');
+      ta.value = v;
+      ta.setAttribute('readonly','');
+      ta.style.position='fixed';
+      ta.style.opacity='0';
+      ta.style.pointerEvents='none';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, v.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok){ showCopiedUI(); return; }
+    }catch(e){ /* continua p/ caminho moderno */ }
+
+    // 2) Clipboard API (quando permitido)
+    if (window.isSecureContext && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try{
+        await navigator.clipboard.writeText(v);
+        showCopiedUI(); return;
+      }catch(e){ /* continua p/ manual */ }
     }
+
+    // 3) Fallback manual: selecionar o input
+    try{
+      const wasRO = codeM.hasAttribute('readonly');
+      if(wasRO) codeM.removeAttribute('readonly');
+      codeM.focus(); codeM.select(); codeM.setSelectionRange(0, v.length);
+      if(wasRO) codeM.setAttribute('readonly','');
+    }catch(e){}
+    alert('Não foi possível copiar automaticamente. Pressione e segure para copiar manualmente.');
   }
   copyM.addEventListener('click', ()=>copyTxt(codeM.value));
 
@@ -364,12 +404,12 @@
   closeM.addEventListener('click', hideModal);
   modal.querySelector('.backdrop').addEventListener('click', hideModal);
 
-  // Restaurar uma única rotação
+  // Restaurar 1 giro
   if(localStorage.getItem(KEY_DONE)==='1'){
     const idx = parseInt(localStorage.getItem(KEY_IDX),10);
     const code= localStorage.getItem(KEY_CODE);
     if(!Number.isNaN(idx) && code){
-      const o = OUTCOMES[idx % OUTCOMES.length] || {name:'Recompensa', angle:0, code};
+      const o = OUTCOMES[idx % OUTCOMES.length] || {name:'Prêmio', angle:0, code};
       wheel.style.transform='rotate('+o.angle+'deg)';
       spinBtn.disabled = true;
       card.setAttribute('data-done','1');
@@ -379,10 +419,12 @@
 
   const pick=()=>Math.floor(Math.random()*OUTCOMES.length);
 
+  // 2–3 voltas apenas
   function triggerSpin(){
     if(card.getAttribute('data-done')==='1') return;
     spinBtn.disabled = true;
 
+    // pausar ornamentos durante o giro
     wrap.classList.remove('idle');
     wrap.classList.add('is-spinning');
 
