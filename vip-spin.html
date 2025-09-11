@@ -81,17 +81,52 @@
   .wrap.is-spinning .bulbs,
   .wrap.is-spinning .hub { animation-play-state:paused; }
 
-  /* Outer accent ring – slow clockwise (idle) */
-  .outerRing{
-    position:absolute; inset:calc(var(--W)*-.24); border-radius:50%; z-index:0; pointer-events:none;
-    background:
-      radial-gradient(circle at 50% 50%, #0000 68%, #20143d 69% 70%, #0000 71%),
-      conic-gradient(from 0deg, #ffffff12 0 2deg, #0000 2deg 15deg) repeat,
-      conic-gradient(from 8deg, #ffffff10 0 2deg, #0000 2deg 15deg) repeat;
-    -webkit-mask:radial-gradient(circle, transparent 66%, #000 67% 100%); mask:radial-gradient(circle, transparent 66%, #000 67% 100%);
-    animation:ringSpin 28s linear infinite;
-  }
-  @keyframes ringSpin{to{transform:rotate(360deg)}}
+ /* === LIGHT behind the wheel (replaces the old outer ring) === */
+.outerRing{
+  position:absolute;
+  inset:calc(var(--W)*-.16);     /* slightly larger than the wheel */
+  z-index:0;
+  border-radius:50%;
+  pointer-events:none;
+
+  /* static glow layers */
+  background:
+    radial-gradient(closest-side,
+      rgba(255,239,180,.65) 0%,
+      rgba(255,207,122,.35) 45%,
+      rgba(255,207,122,.12) 65%,
+      rgba(0,0,0,0) 75%),
+    radial-gradient(closest-side,
+      rgba(255,255,255,.20) 0%,
+      rgba(255,255,255,0) 55%);
+  filter:blur(12px);
+  /* no rotation on the base glow */
+}
+
+/* gentle rotating light sweep on top of the glow */
+.outerRing::after{
+  content:"";
+  position:absolute; inset:0; border-radius:50%;
+  background:
+    conic-gradient(from var(--s,0deg),
+      rgba(255,255,255,.28),
+      rgba(255,255,255,0) 18% 65%,
+      rgba(255,255,255,.28));
+  mix-blend-mode:screen;
+  animation:haloSweep 16s linear infinite;
+  opacity:.75;
+  filter:blur(6px);
+}
+
+/* idle/spin state control already in your CSS:
+   .wrap.idle .outerRing { animation-play-state:running }
+   .wrap.is-spinning .outerRing { animation-play-state:paused }
+   The rule above also pauses this ::after animation. */
+
+@keyframes haloSweep {
+  to { --s: 360deg; }
+}
+
 
   .pointer{
     position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%);
@@ -194,6 +229,17 @@
   }
   .hub img{ width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55)); }
 
+  /* Redeem button – gold gradient, no pulse animation */
+.redeemBtn{
+  background:linear-gradient(90deg,#ffd36b,#ffb436);
+  color:#221a00;
+  animation:none;                  /* no pulsing for secondary CTA */
+  box-shadow:0 8px 22px rgba(255,180,54,.35), 0 10px 22px rgba(0,0,0,.25);
+}
+.redeemBtn:hover{filter:brightness(1.05)}
+.redeemBtn:active{transform:scale(.98)}
+
+  
   /* ===== Modal ===== */
   .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:20}
   .modal.show{display:flex}
@@ -283,10 +329,13 @@
       <div class="badge">YOU WIN</div>
       <div id="winTitle" class="title"><span class="highlight" id="winName">Reward</span> Unlocked</div>
 
-      <div class="codeRow">
-        <input id="codeModal" class="codeInp" value="" readonly>
-        <button class="btn copyBtn" id="copyModal">Copy</button>
-      </div>
+<div class="codeRow">
+  <input id="codeModal" class="codeInp" value="" readonly>
+  <button class="btn copyBtn" id="copyModal">Copy</button>
+  <!-- NEW: Redeem CTA -->
+  <a id="redeemBtn" class="btn redeemBtn" href="/myprofile" role="button">Redeem</a>
+</div>
+
     </div>
   </div>
 
@@ -335,19 +384,26 @@
   }
   copyM.addEventListener('click', ()=>copyTxt(codeM.value));
 
-  function showModal(code, name){
-    codeM.value = code;
-    winName.textContent = name;
-    modal.classList.add('show');
-    const [a,b,c,d] = modal.querySelectorAll('.fly');
-    [a,b,c,d].forEach(el=>{ el.style.animation='none'; el.style.opacity='1'; });
-    requestAnimationFrame(()=>{
-      a.style.animation='flyOutA 4s ease-out forwards';
-      b.style.animation='flyOutB 4s ease-out forwards .3s';
-      c.style.animation='flyOutC 4s ease-out forwards .6s';
-      d.style.animation='flyOutD 4s ease-out forwards .9s';
-    });
-  }
+function showModal(code, name){
+  codeM.value = code;
+  winName.textContent = name;
+
+  // NEW: update Redeem link with the voucher in the querystring
+  const redeem = document.getElementById('redeemBtn');
+  if (redeem) redeem.href = '/myprofile?code=' + encodeURIComponent(code);
+
+  modal.classList.add('show');
+
+  const [a,b,c,d] = modal.querySelectorAll('.fly');
+  [a,b,c,d].forEach(el=>{ el.style.animation='none'; el.style.opacity='1'; });
+  requestAnimationFrame(()=>{
+    a.style.animation='flyOutA 4s ease-out forwards';
+    b.style.animation='flyOutB 4s ease-out forwards .3s';
+    c.style.animation='flyOutC 4s ease-out forwards .6s';
+    d.style.animation='flyOutD 4s ease-out forwards .9s';
+  });
+}
+
   const hideModal=()=>modal.classList.remove('show');
   closeM.addEventListener('click', hideModal);
   modal.querySelector('.backdrop').addEventListener('click', hideModal);
