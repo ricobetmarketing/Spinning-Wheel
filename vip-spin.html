@@ -16,30 +16,59 @@
   }
 
   *{box-sizing:border-box}
+
+  /* ===== Deep 3D stage background ===== */
   body{
     margin:0; color:var(--text);
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     min-height:100dvh; display:grid; place-items:center; padding:18px;
-
-    /* Deep casino gradient + soft vignette + faint rings */
+    /* Base gradient + vignette */
     background:
-      radial-gradient(1500px 1000px at 50% -10%, #ff3e6a22 0%, #0000 60%),
-      radial-gradient(1800px 1200px at 50% 20%, #1a1139 0%, #120d2b 55%, #090b19 100%),
-      radial-gradient(60% 40% at 50% 110%, #000000aa, #0000 60%);
+      radial-gradient(1600px 1100px at 50% 0%, #3a1040 0%, #1a1139 45%, #120d2b 70%, #090b19 100%);
   }
-
-  /* faint ambient wheel underlay rings */
+  /* Top spotlight + bottom fog for depth */
+  body::before,
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  }
+  /* top glow spotlight & parallax rings */
   body::before{
-    content:""; position:fixed; inset:0; pointer-events:none;
     background:
+      radial-gradient(1100px 600px at 50% -10%, #ff3e6a2a 0%, #0000 65%),
+      radial-gradient(900px 500px at 50% -5%, #ffd36b26 0%, #0000 70%),
+      /* soft ring echoes */
       radial-gradient(40% 40% at 50% 50%, #ffffff10 0 1px, #0000 2px) 50% 48%/42% 42% no-repeat,
-      radial-gradient(40% 40% at 50% 50%, #ffffff08 0 1px, #0000 2px) 50% 48%/54% 54% no-repeat,
-      radial-gradient(40% 40% at 50% 50%, #ffffff06 0 1px, #0000 2px) 50% 48%/66% 66% no-repeat;
-    opacity:.35;
+      radial-gradient(40% 40% at 50% 50%, #ffffff08 0 1px, #0000 2px) 50% 48%/56% 56% no-repeat,
+      radial-gradient(40% 40% at 50% 50%, #ffffff06 0 1px, #0000 2px) 50% 48%/70% 70% no-repeat;
+    mix-blend-mode:screen;
+  }
+  /* bottom mist/vignette to “seat” the wheel */
+  body::after{
+    background:
+      radial-gradient(60% 40% at 50% 110%, #000000aa, #0000 60%),
+      radial-gradient(100% 100% at 50% 120%, #000000cc, #0000 40%);
   }
 
+  /* Subtle floating bokeh particles */
+  .bokeh i{
+    position:fixed; width:8px; height:8px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #fff, #fff0);
+    opacity:.18; filter:blur(.5px); z-index:0;
+    animation:bokeh 12s linear infinite;
+  }
+  .bokeh i:nth-child(1){left:14%; top:68%; animation-delay:-2s}
+  .bokeh i:nth-child(2){left:78%; top:22%; animation-delay:-6s}
+  .bokeh i:nth-child(3){left:8%;  top:18%; animation-delay:-9s}
+  .bokeh i:nth-child(4){left:88%; top:76%; animation-delay:-4s}
+  .bokeh i:nth-child(5){left:45%; top:10%; animation-delay:-7s}
+  @keyframes bokeh{
+    from{ transform:translateY(0) translateX(0) scale(.9); }
+    to  { transform:translateY(-40px) translateX(30px) scale(1.2); }
+  }
+
+  /* ===== Card ===== */
   .card{
-    width:min(760px,94vw); text-align:center;
+    width:min(760px,94vw); text-align:center; position:relative; z-index:1;
     background:linear-gradient(180deg,#17193d,#0f1230);
     border:1px solid #262a60; border-radius:20px;
     box-shadow:0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 #2c3170;
@@ -79,6 +108,21 @@
     content:""; position:absolute; width:78%; height:18px; bottom:-12px; left:50%; transform:translateX(-50%);
     background:radial-gradient(closest-side, rgba(0,0,0,.52), rgba(0,0,0,0)); filter:blur(6px);
   }
+
+  /* Backplate behind the wheel (adds separation + glow) */
+  .backplate{
+    position:absolute; width:calc(var(--W)*1.15); height:calc(var(--W)*1.15); border-radius:50%;
+    background:
+      radial-gradient(closest-side, #2a1a4f 0%, #170f37 55%, #0d0f24 85%),
+      radial-gradient(60% 60% at 30% 30%, #ffffff18, transparent 60%);
+    box-shadow:
+      0 30px 80px rgba(0,0,0,.65),
+      0 0 80px rgba(108,88,255,.18),
+      inset 0 0 60px rgba(0,0,0,.35);
+    z-index:0;
+    animation:plateSpin 36s linear infinite;
+  }
+  @keyframes plateSpin{to{transform:rotate(360deg)}}
 
   /* Outer accent ring – slow clockwise */
   .outerRing{
@@ -199,16 +243,14 @@
   .modal.show{display:flex}
   .backdrop{position:absolute; inset:0; background:rgba(5,7,18,.80); backdrop-filter:blur(2px)}
 
-  /* was: overflow:hidden; */
-.win{
-  position:relative; z-index:1; width:min(580px,92vw); color:#fff;
-  border-radius:18px; padding:24px 20px 18px; text-align:center;
-  background:linear-gradient(180deg,#2e1027,#1a113b);
-  box-shadow:0 24px 68px rgba(0,0,0,.65), inset 0 0 0 1px #3a1537;
-  overflow:visible;            /* ✅ allow elements to extend outside the box */
-  isolation:isolate;           /* keeps z-index layering predictable */
-}
-
+  .win{
+    position:relative; z-index:1; width:min(580px,92vw); color:#fff;
+    border-radius:18px; padding:24px 20px 18px; text-align:center;
+    background:linear-gradient(180deg,#2e1027,#1a113b);
+    box-shadow:0 24px 68px rgba(0,0,0,.65), inset 0 0 0 1px #3a1537;
+    overflow:visible;              /* let tokens fly outside */
+    isolation:isolate;
+  }
   .xbtn{position:absolute; right:10px; top:10px; border:0; width:36px; height:36px; border-radius:50%;
         color:#fff; background:rgba(255,255,255,.14); cursor:pointer}
   .badge{display:inline-block; padding:8px 12px; border-radius:999px; font-weight:900; letter-spacing:.3px;
@@ -221,49 +263,43 @@
            background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
   .copyBtn{padding:12px 18px}
 
-  /* flying tokens around modal */
-  .fly{position:absolute; width:110px; height:110px; object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
-  .fly.one{left:-40px; top:20%; animation:flyA 5.4s ease-in-out infinite}
-  .fly.two{right:-40px; top:28%; animation:flyB 6.2s ease-in-out infinite .6s}
-  .fly.three{left:10%; bottom:-30px; transform:scale(.9); animation:flyC 6.6s ease-in-out infinite 1.1s}
-  .fly.four{right:6%; bottom:-26px; transform:scale(.95); animation:flyD 5.8s ease-in-out infinite .2s}
-  
-  
+  /* flying tokens around modal — now fly OUTwards once */
+  .fly{
+    position:absolute; width:110px; height:110px; object-fit:contain;
+    filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0; pointer-events:none; z-index:1;
+  }
+  .prizeTop,.badge,.title,.codeRow{ position:relative; z-index:2; }
 
-/* Example outward-fly animation */
-@keyframes flyOutA {
-  0%   { transform: translate(0,0) scale(0.8) rotate(0deg); opacity:1; }
-  60%  { transform: translate(-120px,-80px) scale(1.1) rotate(-15deg); opacity:.8; }
-  100% { transform: translate(-240px,-160px) scale(1.2) rotate(-25deg); opacity:0; }
-}
-
-@keyframes flyOutB {
-  0%   { transform: translate(0,0) scale(0.8) rotate(0deg); opacity:1; }
-  60%  { transform: translate(120px,-80px) scale(1.1) rotate(15deg); opacity:.8; }
-  100% { transform: translate(240px,-160px) scale(1.2) rotate(25deg); opacity:0; }
-}
-
-@keyframes flyOutC {
-  0%   { transform: translate(0,0) scale(0.8) rotate(0deg); opacity:1; }
-  60%  { transform: translate(-80px,100px) scale(1.1) rotate(10deg); opacity:.8; }
-  100% { transform: translate(-160px,200px) scale(1.2) rotate(20deg); opacity:0; }
-}
-
-@keyframes flyOutD {
-  0%   { transform: translate(0,0) scale(0.8) rotate(0deg); opacity:1; }
-  60%  { transform: translate(80px,100px) scale(1.1) rotate(-10deg); opacity:.8; }
-  100% { transform: translate(160px,200px) scale(1.2) rotate(-20deg); opacity:0; }
-}
-
-/* Apply to your flies */
-.fly.one   { left:0;  top:10%;   animation:flyOutA 4s ease-out forwards; }
-.fly.two   { right:0; top:20%;   animation:flyOutB 4s ease-out forwards .3s; }
-.fly.three { left:0;  bottom:0;  animation:flyOutC 4s ease-out forwards .6s; }
-.fly.four  { right:0; bottom:0;  animation:flyOutD 4s ease-out forwards .9s; }
-
+  @keyframes flyOutA {
+    0%   { transform: translate(0,0) scale(.8) rotate(0deg); opacity:1; }
+    60%  { transform: translate(-120px,-80px) scale(1.1) rotate(-15deg); opacity:.8; }
+    100% { transform: translate(-240px,-160px) scale(1.2) rotate(-25deg); opacity:0; }
+  }
+  @keyframes flyOutB {
+    0%   { transform: translate(0,0) scale(.8) rotate(0deg); opacity:1; }
+    60%  { transform: translate(120px,-80px) scale(1.1) rotate(15deg); opacity:.8; }
+    100% { transform: translate(240px,-160px) scale(1.2) rotate(25deg); opacity:0; }
+  }
+  @keyframes flyOutC {
+    0%   { transform: translate(0,0) scale(.8) rotate(0deg); opacity:1; }
+    60%  { transform: translate(-80px,100px) scale(1.1) rotate(10deg); opacity:.8; }
+    100% { transform: translate(-160px,200px) scale(1.2) rotate(20deg); opacity:0; }
+  }
+  @keyframes flyOutD {
+    0%   { transform: translate(0,0) scale(.8) rotate(0deg); opacity:1; }
+    60%  { transform: translate(80px,100px) scale(1.1) rotate(-10deg); opacity:.8; }
+    100% { transform: translate(160px,200px) scale(1.2) rotate(-20deg); opacity:0; }
+  }
+  .fly.one   { left:0;  top:10%;   animation:flyOutA 4s ease-out forwards; }
+  .fly.two   { right:0; top:20%;   animation:flyOutB 4s ease-out forwards .25s; }
+  .fly.three { left:0;  bottom:0;  animation:flyOutC 4s ease-out forwards .5s; }
+  .fly.four  { right:0; bottom:0;  animation:flyOutD 4s ease-out forwards .75s; }
 </style>
 </head>
 <body>
+  <!-- floating background particles -->
+  <div class="bokeh" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
   <div class="card" id="card" data-done="0">
     <h2><span class="grad">VIP Day</span> – Spin the Wheel 🎡</h2>
     <p class="sub">Tap the button or the center logo to spin and reveal your voucher.</p>
@@ -271,18 +307,19 @@
     <button class="btn" id="spinBtn">Spin Now</button>
 
     <div class="wrap" id="wrap">
-      <div class="outerRing"></div>
-      <div class="pointer"></div>
+      <div class="backplate" aria-hidden="true"></div>
+      <div class="outerRing" aria-hidden="true"></div>
+      <div class="pointer" aria-hidden="true"></div>
 
       <div class="wheel" id="wheel">
-        <div class="seps"></div>
-        <div class="bulbs">
+        <div class="seps" aria-hidden="true"></div>
+        <div class="bulbs" aria-hidden="true">
           <i></i><i></i><i></i><i></i><i></i><i></i>
           <i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
 
         <!-- 8 rewards (4 × 2) -->
-        <div class="labs">
+        <div class="labs" aria-hidden="true">
           <div class="lab a"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
           <div class="lab b"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
           <div class="lab c"><img alt="VIP Bonus"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
@@ -296,7 +333,7 @@
 
       <!-- Center logo hub (click to spin) -->
       <button class="hub" id="hub" aria-label="Spin the wheel">
-        <div class="shine"></div>
+        <div class="shine" aria-hidden="true"></div>
         <img alt="RicoBet Logo" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png">
       </button>
     </div>
@@ -308,13 +345,13 @@
     <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
       <button class="xbtn" id="closeModal" aria-label="Close">✕</button>
 
-      <!-- Flying tokens -->
+      <!-- Flying tokens (outward) -->
       <img class="fly one"   src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
       <img class="fly two"   src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly three" src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly four"  src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
 
-      <!-- Top image inside modal -->
+      <!-- Top image -->
       <img class="prizeTop" alt="RicoBet Prize" src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png">
       <div class="badge">YOU WIN</div>
       <div id="winTitle" class="title"><span class="highlight" id="winName">Reward</span> Unlocked</div>
@@ -376,7 +413,7 @@
     modal.classList.add('show');
   }
   function hideModal(){ modal.classList.remove('show'); }
-  closeM.addEventListener('click', hideModal);
+  document.getElementById('closeModal').addEventListener('click', hideModal);
   modal.querySelector('.backdrop').addEventListener('click', hideModal);
 
   // Restore if already played (one-spin policy)
@@ -384,13 +421,11 @@
     const idx = parseInt(localStorage.getItem(KEY_IDX),10);
     const code= localStorage.getItem(KEY_CODE);
     if(!Number.isNaN(idx) && code){
-      const o = OUTCOMES[idx % OUTCOMES.length] || {name:'Reward'};
-      // Show wheel stopped at recorded angle
-      wheel.style.transform='rotate('+o.angle+'deg)';
-      // Disable spin & show voucher popup immediately
+      const o = OUTCOMES[idx % OUTCOMES.length] || {name:'Reward', angle:0};
+      wheel.style.transform='rotate('+o.angle+'deg)';   // stop at recorded angle
       spinBtn.disabled = true;
       card.setAttribute('data-done','1');
-      showModal(code, o.name);
+      showModal(code, o.name);                           // show voucher immediately
     }
   }
 
@@ -409,16 +444,16 @@
 
     wheel.style.transition='transform 1.9s cubic-bezier(.22,.61,.36,1)';
     wheel.style.transform='rotate('+over+'deg)';
-    setTimeout(()=>{ wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)'; wheel.style.transform='rotate('+final+'deg)'; },1900);
+    setTimeout(()=>{
+      wheel.style.transition='transform .6s cubic-bezier(.25,.9,.25,1)';
+      wheel.style.transform='rotate('+final+'deg)';
+    },1900);
 
     setTimeout(()=>{
-      // Persist one-spin state
       localStorage.setItem(KEY_DONE,'1');
-      localStorage.setItem(KEY_IDX, idx.toString());
+      localStorage.setItem(KEY_IDX, String(idx));
       localStorage.setItem(KEY_CODE, o.code);
       card.setAttribute('data-done','1');
-
-      // Show voucher popup
       showModal(o.code, o.name);
     },2600);
   }
@@ -431,4 +466,3 @@
 </script>
 </body>
 </html>
-
