@@ -14,7 +14,7 @@
 
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
 
-    /* ✨ New: bright, dimensional background with rays + vignette */
+    /* brighter, dimensional background */
     min-height:100dvh;
     background:
       radial-gradient(1200px 600px at 50% -10%, #ffffff1f 0%, #0000 60%),
@@ -24,7 +24,7 @@
   }
 
   .ri-card{
-    background:linear-gradient(180deg,#,);
+    background:linear-gradient(180deg,#141735,#0e1128);
     border:1px solid #202351; border-radius:18px;
     box-shadow:0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 #303472;
     padding:16px; max-width:600px; margin:0 auto; text-align:center
@@ -34,32 +34,54 @@
   .ri-grad{background:linear-gradient(90deg,var(--a1),var(--a2)); -webkit-background-clip:text; background-clip:text; color:transparent}
   .ri-sub{margin:0 10px 12px; color:var(--dim); font-size:.95rem}
 
-  .spinbtn{
-    position:relative; cursor:pointer; display:inline-block; padding:12px 20px; border-radius:999px;
-    font-weight:800; color:#0e0f23; text-decoration:none;
-    background:linear-gradient(90deg,var(--a1),var(--a2));
-    box-shadow:0 8px 22px rgba(120,115,245,.45), 0 8px 18px rgba(0,0,0,.35);
-    transition:transform .12s ease, filter .2s ease; animation:btnPulse 2.2s ease-in-out infinite;
+  /* === Buttons with effects === */
+  .spinbtn,.copybtn{
+    position:relative; cursor:pointer; display:inline-block; border-radius:999px; font-weight:800;
+    color:#0e0f23; text-decoration:none; background:linear-gradient(90deg,var(--a1),var(--a2));
+    box-shadow:0 6px 16px rgba(120,115,245,.45); overflow:hidden;
+    transition:transform .15s ease, filter .2s ease, box-shadow .2s ease;
   }
-  .spinbtn:hover{filter:brightness(1.08)} .spinbtn:active{transform:scale(.97)}
-  .spinbtn[disabled]{opacity:.6; pointer-events:none; animation:none}
+  .spinbtn{padding:14px 24px; font-size:1rem; animation:btnPulse 2.2s ease-in-out infinite}
+  .copybtn{padding:10px 16px; font-size:.9rem}
+
   @keyframes btnPulse{
-    0%,100%{box-shadow:0 0 18px rgba(120,115,245,.35), 0 8px 18px rgba(0,0,0,.35)}
-    50%    {box-shadow:0 0 28px rgba(120,115,245,.60), 0 10px 22px rgba(0,0,0,.38)}
+    0%,100%{box-shadow:0 0 14px rgba(120,115,245,.55),0 0 28px rgba(255,110,196,.35); transform:scale(1)}
+    50%{box-shadow:0 0 24px rgba(120,115,245,.75),0 0 38px rgba(255,110,196,.55); transform:scale(1.04)}
   }
+  .spinbtn:hover,.copybtn:hover{filter:brightness(1.07)}
+  .spinbtn:active,.copybtn:active{transform:scale(.98)}
+  .spinbtn[disabled]{opacity:.6; pointer-events:none; animation:none}
+
+  /* Shine sweep on hover */
+  .spinbtn::after,.copybtn::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(120deg, transparent, #ffffff66 40%, transparent 70%);
+    transform:translateX(-120%); transition:transform .45s ease;
+  }
+  .spinbtn:hover::after,.copybtn:hover::after{transform:translateX(120%)}
+
+  /* Click burst */
+  @keyframes clickBurst{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .spinbtn.clicked,.copybtn.clicked{animation:clickBurst .35s ease}
 
   /* --------- WHEEL --------- */
   .wheelWrap{ --W: min(78vw,360px); position:relative; display:grid; place-items:center; padding:12px; margin:14px auto 6px }
+  /* drop shadow under wheel for 3D lift */
+  .wheelWrap::after{
+    content:""; position:absolute; width:80%; height:18px; bottom:-10px; left:50%; transform:translateX(-50%);
+    background:radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0));
+    filter:blur(6px); z-index:0;
+  }
 
-  /* idle state controller */
+  /* idle / spin state control */
   .wheelWrap.idle .orbit,
   .wheelWrap.idle .bulbs,
   .wheelWrap.idle .hub .shine,
-  .wheelWrap.idle .hub .star { animation-play-state:running }
+  .wheelWrap.idle .hub img.logo { animation-play-state:running }
   .wheelWrap.is-spinning .orbit,
   .wheelWrap.is-spinning .bulbs,
   .wheelWrap.is-spinning .hub .shine,
-  .wheelWrap.is-spinning .hub .star { animation-play-state:paused }
+  .wheelWrap.is-spinning .hub img.logo { animation-play-state:paused }
 
   .pointer{
     position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%);
@@ -73,12 +95,12 @@
     box-shadow:0 0 10px rgba(255,214,58,.65), inset 0 0 6px rgba(255,255,255,.7);
   }
 
-  /* Outer orbit ring (subtle rotating accents BEFORE spin) */
+  /* Outer orbit ring (pre-spin motion) */
   .orbit{
     position:absolute; inset:-26px; border-radius:50%; z-index:3; pointer-events:none;
     background:
-      conic-gradient(from 0deg, #ffffff30 0 1.2deg, #0000 1.2deg 12deg) repeat,
-      conic-gradient(from 6deg, #ffffff25 0 1.2deg, #0000 1.2deg 12deg) repeat;
+      conic-gradient(from 0deg, #ffffff30 0 1.3deg, #0000 1.3deg 12deg) repeat,
+      conic-gradient(from 6deg, #ffffff25 0 1.3deg, #0000 1.3deg 12deg) repeat;
     -webkit-mask:radial-gradient(circle, transparent 80%, #000 82%);
             mask:radial-gradient(circle, transparent 80%, #000 82%);
     animation:orbit 6s linear infinite;
@@ -87,17 +109,19 @@
 
   .wheel{
     position:relative; z-index:1; width:var(--W); height:var(--W); border-radius:50%;
+    /* Alternating wedges */
     background:conic-gradient(from -22.5deg,
       var(--wedgeDark) 0 12.5%, var(--wedgeLight) 0 25%,
       var(--wedgeDark) 0 37.5%, var(--wedgeLight) 0 50%,
       var(--wedgeDark) 0 62.5%, var(--wedgeLight) 0 75%,
       var(--wedgeDark) 0 87.5%, var(--wedgeLight) 0 100%);
+    /* 3D face + rim */
     box-shadow:
-      inset 0 0 0 12px #101235,
-      inset 0 0 0 16px #1a1d3f,
-      inset 0 -18px 28px rgba(0,0,0,.25),
-      inset 0 18px 28px rgba(255,255,255,.16),
-      0 20px 46px rgba(0,0,0,.6);
+      inset 0 0 0 12px #101235,         /* inner dark ring */
+      inset 0 0 0 16px #1a1d3f,         /* metallic lip */
+      inset 20px 20px 40px rgba(0,0,0,.20),   /* vignette for depth */
+      inset -8px -14px 24px rgba(255,255,255,.14), /* opposite highlight */
+      0 22px 50px rgba(0,0,0,.55);      /* outer cast */
     transition:transform 3s cubic-bezier(.22,.61,.36,1);
   }
 
@@ -112,16 +136,16 @@
     z-index:-1;
   }
 
-  /* Glass sheen & bevel on the inner face */
+  /* Glass sheen & specular highlights */
   .wheel::after{
     content:""; position:absolute; inset:14px; border-radius:50%;
     background:
-      radial-gradient(circle at 30% 30%, #ffffff3a 0 40%, transparent 60%),
-      radial-gradient(circle at 70% 70%, #00000035 0 25%, transparent 60%);
+      radial-gradient(120% 80% at 30% 25%, #ffffff3a 0 35%, transparent 55%),
+      radial-gradient(120% 80% at 70% 75%, #00000035 0 28%, transparent 60%);
     box-shadow:inset 0 0 0 2px #171a38, inset 0 0 30px rgba(0,0,0,.35);
   }
 
-  /* Strong wedge borders every 45deg (outer) + inner fine ticks */
+  /* Strong wedge borders + inner ticks */
   .separators{position:absolute; inset:0; pointer-events:none; z-index:4}
   .separators::before,
   .separators::after{
@@ -129,20 +153,18 @@
     -webkit-mask:radial-gradient(circle, transparent var(--cut,56%), #000 calc(var(--cut,56%) + 1%));
             mask:radial-gradient(circle, transparent var(--cut,56%), #000 calc(var(--cut,56%) + 1%));
   }
-  /* Outer bold borders */
   .separators::before{
     inset:20px; --cut:56%;
-    background:conic-gradient(#8a5a00 0 2.2deg, #0000 2.2deg 45deg) repeat;
-    filter:drop-shadow(0 0 2px rgba(255,229,120,.7));
+    background:conic-gradient(#8a5a00 0 2.4deg, #0000 2.4deg 45deg) repeat;
+    filter:drop-shadow(0 0 2px rgba(255,229,120,.75));
   }
-  /* Inner slim bright ticks closer to icons */
   .separators::after{
     inset:42px; --cut:45%;
-    background:conic-gradient(#fff 0 0.8deg, #0000 0.8deg 45deg) repeat;
-    opacity:.65;
+    background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat;
+    opacity:.7;
   }
 
-  /* Rim bulbs (also rotate in idle) */
+  /* Rim bulbs (rotate in idle) */
   .bulbs{position:absolute; inset:-6px; z-index:6; pointer-events:none; animation:orbit 10s linear infinite}
   .bulbs i{
     position:absolute; left:50%; top:50%; width:14px; height:14px; border-radius:50%;
@@ -157,45 +179,63 @@
   .bulbs i:nth-child(9){--rot:240deg}  .bulbs i:nth-child(10){--rot:270deg}
   .bulbs i:nth-child(11){--rot:300deg} .bulbs i:nth-child(12){--rot:330deg}
 
-  /* Reward ICONS (8, spin with the wheel) */
+  /* Reward ICONS (8) */
   .labs{position:absolute; inset:0; z-index:5; pointer-events:none}
   .lab{
-    position:absolute; left:50%; top:50%;
-    transform-origin:center;
-    --r: calc(var(--W) * .34);
-    --theta: 0deg;
+    position:absolute; left:50%; top:50%; transform-origin:center;
+    --r: calc(var(--W) * .34); --theta: 0deg;
     transform:translate(-50%,-50%) rotate(var(--theta)) translateY(calc(-1 * var(--r)));
   }
-  .lab img{
-    width:58px; height:58px; object-fit:contain; display:block;
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,.45));
-  }
+  .lab img{ width:58px; height:58px; object-fit:contain; display:block; filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); }
   .lab.a{ --theta:   0deg; }  .lab.b{ --theta:  45deg; }
   .lab.c{ --theta:  90deg; }  .lab.d{ --theta: 135deg; }
   .lab.e{ --theta: 180deg; }  .lab.f{ --theta: 225deg; }
   .lab.g{ --theta: 270deg; }  .lab.h{ --theta: 315deg; }
 
-  /* Center STAR hub (wobble + sheen in idle) */
+  /* Center LOGO hub (replaces star) */
   .hub{
     position:absolute; z-index:9; left:50%; top:50%; transform:translate(-50%,-50%);
     width:calc(var(--W)*.32); height:calc(var(--W)*.32); max-width:128px; max-height:128px;
-    border-radius:50%;
+    border-radius:50%; cursor:pointer;
     background:
       radial-gradient(circle at 30% 30%, #ffffffaa 0 12%, #ffffff40 13% 30%, transparent 31% 100%),
       linear-gradient(180deg, var(--gold3), var(--gold2));
-    box-shadow:inset 0 8px 16px rgba(255,255,255,.55), inset 0 -10px 16px rgba(143,90,0,.45), 0 10px 22px rgba(0,0,0,.55);
+    box-shadow:
+      inset 0 8px 16px rgba(255,255,255,.55),
+      inset 0 -10px 16px rgba(143,90,0,.45),
+      0 10px 22px rgba(0,0,0,.55),
+      0 0 24px rgba(255,235,140,.35);
     display:grid; place-items:center; overflow:hidden;
+    transition:transform .15s ease, filter .2s ease;
   }
-  .hub .star{width:74%; height:74%; filter:drop-shadow(0 4px 8px rgba(0,0,0,.5)); animation:wobble 2.2s ease-in-out infinite}
-  @keyframes wobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.03)}}
+  .hub:hover{filter:brightness(1.06); transform:translate(-50%,-50%) scale(1.03)}
   .hub .shine{
     position:absolute; inset:-30%;
     background:conic-gradient(from 0deg,#ffffff40 0 8%, #0000 8% 25%, #ffffff30 25% 33%, #0000 33% 50%, #ffffff20 50% 58%, #0000 58% 100%);
-    animation:orbit 3.2s linear infinite;
+    animation:orbit 3.2s linear infinite; pointer-events:none;
   }
-  .hub::after{content:""; position:absolute; inset:-6px; border-radius:50%; box-shadow:0 0 26px rgba(255,235,140,.5); animation:hubGlow 2.2s ease-in-out infinite}
-  @keyframes hubGlow{0%,100%{opacity:.55}50%{opacity:.95}}
+  .hub img.logo{
+    width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55));
+    animation:wobble 2.2s ease-in-out infinite;
+  }
+  @keyframes wobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.03)}}
 
+  
+  /* Logo rotation while the wheel spins */
+@keyframes hubSpin { to { transform: rotate(360deg); } }
+
+/* When the wrapper is in spinning state, override the idle wobble */
+.wheelWrap.is-spinning .hub img.logo {
+  animation: hubSpin .9s linear infinite !important; /* rotates */
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.6));
+  transform-origin: 50% 50%;
+}
+
+/* Optional: slight “press” feedback when user taps the hub */
+.hub:active {
+  transform: translate(-50%,-50%) scale(0.98);
+}
+  .
   /* Reveal/code */
   .reveal{opacity:0; visibility:hidden; margin-top:14px; border:1px solid var(--ring);
           border-radius:12px; background:#10122b; padding:12px; transition:opacity .3s ease}
@@ -204,9 +244,6 @@
   .codebox .label{flex:0 0 auto; font-size:.95rem}
   .code{flex:1 1 220px; min-width:180px; padding:10px; border-radius:10px; border:1px solid var(--ring);
         background:#0f1128; color:#f2f3ff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
-  .copybtn{flex:0 0 auto; border:0; border-radius:999px; padding:10px 14px; font-weight:800;
-           background:linear-gradient(90deg,var(--a1),var(--a2)); color:#0e0f23; cursor:pointer;
-           box-shadow:0 6px 14px rgba(120,115,245,.35)}
   .copynote{margin-top:6px; color:#aeb2ef; font-size:.85rem}
   .ok{display:none; color:#1dd1a1}
 </style>
@@ -221,7 +258,6 @@
 
     <div class="wheelWrap idle" id="wrap">
       <div class="pointer"></div>
-
       <!-- idle orbit accent -->
       <div class="orbit"></div>
 
@@ -247,13 +283,10 @@
         </div>
       </div>
 
-      <!-- Animated STAR hub -->
-      <div class="hub">
+      <!-- Logo hub (clickable) -->
+      <div class="hub" id="hub" title="Spin">
         <div class="shine"></div>
-        <svg class="star" viewBox="0 0 100 100" aria-hidden="true">
-          <polygon points="50,5 61,36 94,36 67,55 77,88 50,69 23,88 33,55 6,36 39,36"
-                   fill="#fff06a" stroke="#e8b100" stroke-width="3"></polygon>
-        </svg>
+        <img class="logo" alt="RicoBet" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png">
       </div>
     </div>
 
@@ -270,18 +303,19 @@
 
 <script>
 (function(){
-  var wheel = document.getElementById('wheel');
-  var wrap  = document.getElementById('wrap');
-  var spinBtn = document.getElementById('spinBtn');
-  var codeEl = document.getElementById('code');
-  var reveal = document.getElementById('reveal');
-  var copied = document.getElementById('copied');
-  var copyBtn= document.getElementById('copyBtn');
-  var outcomeLabel = document.getElementById('outcomeLabel');
-  var card = document.getElementById('card');
+  const wheel   = document.getElementById('wheel');
+  const wrap    = document.getElementById('wrap');
+  const spinBtn = document.getElementById('spinBtn');
+  const hub     = document.getElementById('hub');
+  const codeEl  = document.getElementById('code');
+  const reveal  = document.getElementById('reveal');
+  const copied  = document.getElementById('copied');
+  const copyBtn = document.getElementById('copyBtn');
+  const outcomeLabel = document.getElementById('outcomeLabel');
+  const card    = document.getElementById('card');
 
   // 8 outcomes (duplicated rewards)
-  var OUTCOMES = [
+  const OUTCOMES = [
     { code:'VSTAR', name:'Free Spins',   angle:   0 },
     { code:'AURA',  name:'Lucky Ticket', angle:  45 },
     { code:'CHAMP', name:'VIP Bonus',    angle:  90 },
@@ -292,31 +326,53 @@
     { code:'VIPGO', name:'Mystery',      angle: 315 }
   ];
 
-  var KEY_DONE='rb_spin_done', KEY_CODE='rb_spin_code', KEY_IDX='rb_spin_idx';
+  const KEY_DONE='rb_spin_done', KEY_CODE='rb_spin_code', KEY_IDX='rb_spin_idx';
 
-  // restore if already played
+  // Reusable click animation on buttons
+  function addClickAnim(el){
+    if(!el) return;
+    el.addEventListener('click',()=>{
+      el.classList.remove('clicked'); void el.offsetWidth;
+      el.classList.add('clicked');
+      setTimeout(()=>el.classList.remove('clicked'),350);
+    });
+  }
+  addClickAnim(spinBtn);
+  addClickAnim(copyBtn);
+  addClickAnim(hub);
+
+  // Make hub act like the spin button
+  if(hub){
+    hub.addEventListener('click', (e)=>{
+      e.preventDefault();
+      if(card.getAttribute('data-done')==='1') return;
+      spinBtn.click();
+    });
+  }
+
+  // Restore if already played
   if(localStorage.getItem(KEY_DONE)==='1'){
-    var idx=parseInt(localStorage.getItem(KEY_IDX),10);
+    const idx=parseInt(localStorage.getItem(KEY_IDX),10);
     if(!isNaN(idx) && OUTCOMES[idx]){
-      var o=OUTCOMES[idx];
+      const o=OUTCOMES[idx];
       wheel.style.transform='rotate('+o.angle+'deg)';
       codeEl.value=o.code;
       outcomeLabel.textContent='🎉 '+o.name+' — your VIP code:';
       reveal.classList.add('show');
       spinBtn.disabled=true;
       card.setAttribute('data-done','1');
-      wrap.classList.remove('idle');      // stop idle motion if already done
-      wrap.classList.add('is-spinning');  // keep paused
+      wrap.classList.remove('idle');
+      wrap.classList.add('is-spinning'); // pause idle ornaments
     }
   }
 
   function pick(){ return Math.floor(Math.random()*OUTCOMES.length); }
 
   function spinTo(idx){
-    var o=OUTCOMES[idx];
-    var turns=4+Math.floor(Math.random()*3);
-    var final=turns*360+o.angle;
-    var over=final+22;
+    const o=OUTCOMES[idx];
+    const turns=4+Math.floor(Math.random()*3);
+    const final=turns*360+o.angle;
+    const over=final+22;
 
     // pause idle ornaments while spinning
     wrap.classList.add('is-spinning'); wrap.classList.remove('idle');
@@ -344,18 +400,37 @@
       e.preventDefault();
       if(card.getAttribute('data-done')==='1')return;
       spinBtn.disabled=true;
-      var idx=pick();
+      const idx=pick();
       spinTo(idx);
     });
   }
+  
+if (hub) {
+  hub.setAttribute('role','button');
+  hub.setAttribute('tabindex','0');
+  hub.setAttribute('aria-label','Spin the wheel');
+
+  const triggerSpin = (e) => {
+    e.preventDefault();
+    if (card.getAttribute('data-done') === '1') return;
+    spinBtn.click(); // reuse the same spin flow
+  };
+
+  hub.addEventListener('click', triggerSpin);
+  hub.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') triggerSpin(e);
+  });
+}
+
 
   if(copyBtn){
     copyBtn.addEventListener('click',async function(){
-      var txt=codeEl.value; if(!txt)return;
+      const txt=codeEl.value; if(!txt)return;
       try{
         if(navigator.clipboard){ await navigator.clipboard.writeText(txt); }
         else{ codeEl.select(); document.execCommand('copy'); }
-        copied.style.display='inline'; setTimeout(()=>{copied.style.display='none';},1500);
+        copied.style.display='inline';
+        setTimeout(()=>{copied.style.display='none';},1500);
       }catch(e){ alert('Copy failed. Please long-press the code.'); }
     });
   }
@@ -363,4 +438,3 @@
 </script>
 </body>
 </html>
-
