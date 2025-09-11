@@ -24,7 +24,7 @@
   }
 
   .ri-card{
-    background:linear-gradient(180deg,#,#);
+    background:linear-gradient(180deg,#141735,#0e1128); /* ✅ fixed */
     border:1px solid #202351; border-radius:18px;
     box-shadow:0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 #303472;
     padding:16px; max-width:600px; margin:0 auto; text-align:center
@@ -80,8 +80,7 @@
   .wheelWrap.idle .hub img.logo { animation-play-state:running }
   .wheelWrap.is-spinning .orbit,
   .wheelWrap.is-spinning .bulbs,
-  .wheelWrap.is-spinning .hub .shine,
-  .wheelWrap.is-spinning .hub img.logo { animation-play-state:paused }
+  .wheelWrap.is-spinning .hub .shine { animation-play-state:paused } /* NOTE: logo NOT paused */
 
   .pointer{
     position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%);
@@ -117,11 +116,11 @@
       var(--wedgeDark) 0 87.5%, var(--wedgeLight) 0 100%);
     /* 3D face + rim */
     box-shadow:
-      inset 0 0 0 12px #101235,         /* inner dark ring */
-      inset 0 0 0 16px #1a1d3f,         /* metallic lip */
-      inset 20px 20px 40px rgba(0,0,0,.20),   /* vignette for depth */
-      inset -8px -14px 24px rgba(255,255,255,.14), /* opposite highlight */
-      0 22px 50px rgba(0,0,0,.55);      /* outer cast */
+      inset 0 0 0 12px #101235,
+      inset 0 0 0 16px #1a1d3f,
+      inset 20px 20px 40px rgba(0,0,0,.20),
+      inset -8px -14px 24px rgba(255,255,255,.14),
+      0 22px 50px rgba(0,0,0,.55);
     transition:transform 3s cubic-bezier(.22,.61,.36,1);
   }
 
@@ -192,50 +191,48 @@
   .lab.e{ --theta: 180deg; }  .lab.f{ --theta: 225deg; }
   .lab.g{ --theta: 270deg; }  .lab.h{ --theta: 315deg; }
 
-  /* Center LOGO hub (replaces star) */
+  /* Center LOGO hub — now DARK plate so logo pops */
   .hub{
     position:absolute; z-index:9; left:50%; top:50%; transform:translate(-50%,-50%);
     width:calc(var(--W)*.32); height:calc(var(--W)*.32); max-width:128px; max-height:128px;
     border-radius:50%; cursor:pointer;
     background:
-      radial-gradient(circle at 30% 30%, #ffffffaa 0 12%, #ffffff40 13% 30%, transparent 31% 100%),
-      linear-gradient(180deg, var(--gold3), var(--gold2));
+      radial-gradient(circle at 60% 40%, #1f2450 0 25%, #101432 55%, #0a0d22 100%); /* dark plate */
     box-shadow:
-      inset 0 8px 16px rgba(255,255,255,.55),
-      inset 0 -10px 16px rgba(143,90,0,.45),
+      inset 0 10px 18px rgba(255,255,255,.08),
+      inset 0 -14px 22px rgba(0,0,0,.55),
       0 10px 22px rgba(0,0,0,.55),
-      0 0 24px rgba(255,235,140,.35);
+      0 0 22px rgba(120,115,245,.25);
     display:grid; place-items:center; overflow:hidden;
     transition:transform .15s ease, filter .2s ease;
   }
   .hub:hover{filter:brightness(1.06); transform:translate(-50%,-50%) scale(1.03)}
   .hub .shine{
     position:absolute; inset:-30%;
-    background:conic-gradient(from 0deg,#ffffff40 0 8%, #0000 8% 25%, #ffffff30 25% 33%, #0000 33% 50%, #ffffff20 50% 58%, #0000 58% 100%);
+    background:conic-gradient(from 0deg,#ffffff25 0 8%, #0000 8% 25%, #ffffff18 25% 33%, #0000 33% 50%, #ffffff12 50% 58%, #0000 58% 100%);
     animation:orbit 3.2s linear infinite; pointer-events:none;
   }
   .hub img.logo{
     width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55));
-    animation:wobble 2.2s ease-in-out infinite;
+    animation:wobble 2.2s ease-in-out infinite; /* idle wobble */
   }
   @keyframes wobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.03)}}
 
-  
-  /* Logo rotation while the wheel spins */
-@keyframes hubSpin { to { transform: rotate(45deg); } }
+  /* During spinning: gentle rocking, NOT full 360 */
+  @keyframes hubRock {
+    0%   { transform: rotate(-8deg) }
+    50%  { transform: rotate(  8deg) }
+    100% { transform: rotate(-8deg) }
+  }
+  .wheelWrap.is-spinning .hub img.logo{
+    animation: hubRock 1.2s ease-in-out infinite !important;
+    transform-origin:50% 50%;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));
+  }
 
-/* When the wrapper is in spinning state, override the idle wobble */
-.wheelWrap.is-spinning .hub img.logo {
-  animation: hubSpin .9s linear infinite !important; /* rotates */
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,.6));
-  transform-origin: 50% 50%;
-}
+  /* “Press” feedback on hub */
+  .hub:active { transform: translate(-50%,-50%) scale(0.98); }
 
-/* Optional: slight “press” feedback when user taps the hub */
-.hub:active {
-  transform: translate(-50%,-50%) scale(0.98);
-}
-  .
   /* Reveal/code */
   .reveal{opacity:0; visibility:hidden; margin-top:14px; border:1px solid var(--ring);
           border-radius:12px; background:#10122b; padding:12px; transition:opacity .3s ease}
@@ -341,12 +338,19 @@
   addClickAnim(copyBtn);
   addClickAnim(hub);
 
-  // Make hub act like the spin button
-  if(hub){
-    hub.addEventListener('click', (e)=>{
+  // Make hub act like the spin button + keyboard accessible
+  if (hub) {
+    hub.setAttribute('role','button');
+    hub.setAttribute('tabindex','0');
+    hub.setAttribute('aria-label','Spin the wheel');
+    const triggerSpin = (e) => {
       e.preventDefault();
-      if(card.getAttribute('data-done')==='1') return;
+      if (card.getAttribute('data-done') === '1') return;
       spinBtn.click();
+    };
+    hub.addEventListener('click', triggerSpin);
+    hub.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') triggerSpin(e);
     });
   }
 
@@ -362,7 +366,7 @@
       spinBtn.disabled=true;
       card.setAttribute('data-done','1');
       wrap.classList.remove('idle');
-      wrap.classList.add('is-spinning'); // pause idle ornaments
+      wrap.classList.add('is-spinning'); // pause idle ornaments (logo keeps rocking)
     }
   }
 
@@ -374,7 +378,7 @@
     const final=turns*360+o.angle;
     const over=final+22;
 
-    // pause idle ornaments while spinning
+    // pause idle ornaments while spinning (logo will rock, not 360-spin)
     wrap.classList.add('is-spinning'); wrap.classList.remove('idle');
 
     wheel.style.transition='transform 2.6s cubic-bezier(.22,.61,.36,1)';
@@ -404,24 +408,6 @@
       spinTo(idx);
     });
   }
-  
-if (hub) {
-  hub.setAttribute('role','button');
-  hub.setAttribute('tabindex','0');
-  hub.setAttribute('aria-label','Spin the wheel');
-
-  const triggerSpin = (e) => {
-    e.preventDefault();
-    if (card.getAttribute('data-done') === '1') return;
-    spinBtn.click(); // reuse the same spin flow
-  };
-
-  hub.addEventListener('click', triggerSpin);
-  hub.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') triggerSpin(e);
-  });
-}
-
 
   if(copyBtn){
     copyBtn.addEventListener('click',async function(){
