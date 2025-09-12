@@ -10,6 +10,10 @@
     --rb-red:#ff2e55; --rb-pink:#ff6ec4; --rb-purple:#6c58ff;
     --gold1:#ffd36b; --gold2:#ffb436; --gold3:#ffcf7a; --warn:#ffe600;
     --wedgeDark:#ff7b44; --wedgeLight:#ffc86a;
+
+    /* ✨ New: easy size controls for prize & fly icons */
+    --prizeSize: 92px;   /* post-spin GIF in modal */
+    --flySize:   78px;   /* flying icons after spin */
   }
   *{box-sizing:border-box}
 
@@ -21,7 +25,7 @@
     background:url("https://ricobr.ft-crm.com/media-api/serve/b6c73de3-7fcb-4ee1-8188-0c0f6542806c_WY_Mascott_Icon.png") center 30%/cover no-repeat fixed;
     position:relative; overflow-x:hidden;
   }
-  body::before{ /* vinheta suave */
+  body::before{
     content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
     background:radial-gradient(140% 90% at 50% 30%, #0008 0%, #0009 45%, #000b 100%);
   }
@@ -62,7 +66,6 @@
 
   /* ===== Roleta ===== */
   .wrap{ --W:min(84vw,480px); position:relative; display:grid; place-items:center; margin:8px auto 6px; z-index:2 }
-  /* HALO/LUZ atrás da roleta (respiração lenta) */
   .wrap .halo{
     position:absolute; z-index:0; width:calc(var(--W)*1.28); height:calc(var(--W)*1.28); border-radius:50%;
     background:
@@ -80,38 +83,19 @@
   .wrap.is-spinning .bulbs,
   .wrap.is-spinning .hub { animation-play-state:paused; }
 
- /* === Luz atrás da roleta === */
-.outerRing{
-  position:absolute;
-  inset:calc(var(--W)*-.16);
-  z-index:0;
-  border-radius:50%;
-  pointer-events:none;
-  background:
-    radial-gradient(closest-side,
-      rgba(255,239,180,.65) 0%,
-      rgba(255,207,122,.35) 45%,
-      rgba(255,207,122,.12) 65%,
-      rgba(0,0,0,0) 75%),
-    radial-gradient(closest-side,
-      rgba(255,255,255,.20) 0%,
-      rgba(255,255,255,0) 55%);
-  filter:blur(12px);
-}
-.outerRing::after{
-  content:"";
-  position:absolute; inset:0; border-radius:50%;
-  background:
-    conic-gradient(from var(--s,0deg),
-      rgba(255,255,255,.28),
-      rgba(255,255,255,0) 18% 65%,
-      rgba(255,255,255,.28));
-  mix-blend-mode:screen;
-  animation:haloSweep 16s linear infinite;
-  opacity:.75;
-  filter:blur(6px);
-}
-@keyframes haloSweep { to { --s: 360deg; } }
+  .outerRing{
+    position:absolute; inset:calc(var(--W)*-.16); z-index:0; border-radius:50%; pointer-events:none;
+    background:
+      radial-gradient(closest-side, rgba(255,239,180,.65) 0%, rgba(255,207,122,.35) 45%, rgba(255,207,122,.12) 65%, rgba(0,0,0,0) 75%),
+      radial-gradient(closest-side, rgba(255,255,255,.20) 0%, rgba(255,255,255,0) 55%);
+    filter:blur(12px);
+  }
+  .outerRing::after{
+    content:""; position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from var(--s,0deg), rgba(255,255,255,.28), rgba(255,255,255,0) 18% 65%, rgba(255,255,255,.28));
+    mix-blend-mode:screen; animation:haloSweep 16s linear infinite; opacity:.75; filter:blur(6px);
+  }
+  @keyframes haloSweep { to { --s: 360deg; } }
 
   .pointer{
     position:absolute; top: calc(50% - (var(--W)/2) - 2px); left:50%; transform:translateX(-50%);
@@ -154,7 +138,6 @@
     box-shadow:inset 0 0 0 2px #171a38, inset 0 0 30px rgba(0,0,0,.35);
   }
 
-  /* separadores */
   .seps{position:absolute; inset:0; pointer-events:none; z-index:1}
   .seps::before,.seps::after{
     content:""; position:absolute; border-radius:50%;
@@ -164,7 +147,6 @@
   .seps::before{ inset:20px; --cut:56%; background:conic-gradient(#7f5200 0 2.8deg, #0000 2.8deg 45deg) repeat; filter:drop-shadow(0 0 2px rgba(255,229,120,.75)); }
   .seps::after{ inset:44px; --cut:45%; background:conic-gradient(#fff 0 1deg, #0000 1deg 45deg) repeat; opacity:.7; }
 
-  /* lâmpadas girando (idle) */
   .bulbs{position:absolute; inset:-6px; z-index:2; pointer-events:none; animation:bulbSpin 20s linear infinite reverse}
   @keyframes bulbSpin{to{transform:rotate(360deg)}}
   .bulbs i{
@@ -222,19 +204,24 @@
        background:linear-gradient(180deg,#2e1027,#1a113b); box-shadow:0 24px 68px rgba(0,0,0,.65), inset 0 0 0 1px #3a1537; overflow:visible; isolation:isolate;}
   .xbtn{position:absolute; right:10px; top:10px; border:0; width:36px; height:36px; border-radius:50%; color:#fff; background:rgba(255,255,255,.14); cursor:pointer}
   .badge{display:inline-block; padding:8px 12px; border-radius:999px; font-weight:900; letter-spacing:.3px; background:linear-gradient(90deg,var(--rb-red),var(--rb-purple)); box-shadow:0 8px 18px rgba(255,46,85,.35); margin-top:6px}
-  .prizeTop{width:120px; height:120px; object-fit:contain; display:block; margin:6px auto 2px; filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
-  .title{font-size:1.7rem; font-weight:900; margin:8px 0 8px}
+
+  /* ✨ Updated: smaller / responsive assets */
+  .prizeTop{
+    width:var(--prizeSize); height:var(--prizeSize); object-fit:contain; display:block;
+    margin:6px auto 2px; filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))
+  }
+  .title{font-size:1.6rem; font-weight:900; margin:8px 0 8px}
   .highlight{color:#ffe25f; text-shadow:0 1px 0 #8a5f00}
   .codeRow{display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:12px}
   .codeInp{flex:1 1 260px; min-width:220px; padding:12px; border-radius:12px; border:1px solid #3a3e86; background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
   .copyBtn{padding:12px 18px}
 
-  /* ícones que “voam” */
-  .fly{position:absolute; width:110px; height:110px; object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
-  @keyframes flyOutA{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-120px,-80px) scale(1.1) rotate(-15deg);opacity:.85}100%{transform:translate(-240px,-160px) scale(1.2) rotate(-25deg);opacity:0}}
-  @keyframes flyOutB{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(120px,-80px) scale(1.1) rotate(15deg);opacity:.85}100%{transform:translate(240px,-160px) scale(1.2) rotate(25deg);opacity:0}}
-  @keyframes flyOutC{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(-80px,100px) scale(1.1) rotate(10deg);opacity:.85}100%{transform:translate(-160px,200px) scale(1.2) rotate(20deg);opacity:0}}
-  @keyframes flyOutD{0%{transform:translate(0,0) scale(.8) rotate(0);opacity:1}60%{transform:translate(80px,100px) scale(1.1) rotate(-10deg);opacity:.85}100%{transform:translate(160px,200px) scale(1.2) rotate(-20deg);opacity:0}}
+  /* ✨ Updated: smaller flying icons */
+  .fly{position:absolute; width:var(--flySize); height:var(--flySize); object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
+  @keyframes flyOutA{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(-110px,-70px) scale(1.04) rotate(-14deg);opacity:.9}100%{transform:translate(-200px,-140px) scale(1.08) rotate(-20deg);opacity:0}}
+  @keyframes flyOutB{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(110px,-70px) scale(1.04) rotate(14deg);opacity:.9}100%{transform:translate(200px,-140px) scale(1.08) rotate(20deg);opacity:0}}
+  @keyframes flyOutC{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(-70px,90px) scale(1.04) rotate(10deg);opacity:.9}100%{transform:translate(-140px,180px) scale(1.08) rotate(16deg);opacity:0}}
+  @keyframes flyOutD{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(70px,90px) scale(1.04) rotate(-10deg);opacity:.9}100%{transform:translate(140px,180px) scale(1.08) rotate(-16deg);opacity:0}}
   .fly.one{left:0; top:10%} .fly.two{right:0; top:20%} .fly.three{left:0; bottom:0} .fly.four{right:0; bottom:0}
 
   /* toast de cópia */
@@ -246,6 +233,78 @@
     opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:40;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  /* extra small screens: nudge sizes down a bit */
+  @media (max-width:380px){
+    :root{ --prizeSize: 78px; --flySize: 66px; }
+    .title{font-size:1.4rem}
+  }
+
+  /* ==== MOBILE FIT & PULL-UP TWEAKS ==== */
+
+/* Use the modern viewport unit to avoid iOS address-bar jump */
+@supports (height: 100svh) {
+  body { min-height: 100svh; }
+}
+
+/* Phone layout */
+@media (max-width: 600px) {
+  /* Pull content toward the top; remove vertical centering */
+  body{
+    display:flex;
+    align-items:stretch;
+    justify-content:flex-start;
+    /* add safe-area padding and a small top offset */
+    padding: max(10px, env(safe-area-inset-top)) 12px
+             calc(12px + env(safe-area-inset-bottom));
+    /* keep same background */
+    background-attachment: fixed;
+  }
+
+  /* Tighten the card and pull it slightly upward */
+  .card{
+    width:100%;
+    padding:12px 10px 8px;
+    margin: 4px auto 0;
+  }
+
+  /* Make headline/sub a touch smaller */
+  h2{ font-size: .98rem; }
+  .sub{ font-size: 12px; margin-bottom: 10px; }
+
+  /* Reduce wheel size and bring it closer to the headline */
+  .wrap{
+    /* slightly smaller wheel on phones */
+    --W: min(92vw, 380px);
+    margin: 4px auto 0;   /* was 8px auto 6px */
+  }
+
+  /* Nudge the pointer a bit higher so the total block is shorter */
+  .pointer{ top: calc(50% - (var(--W)/2) - 6px); } /* was -2px */
+
+  /* Trim some of the decorative glow to save vertical space */
+  .halo{ display:none; }
+  .outerRing{ inset: calc(var(--W) * -0.12); }
+
+  /* Slightly smaller hub for better fit */
+  .hub{
+    width: calc(var(--W) * .28);
+    height: calc(var(--W) * .28);
+  }
+
+  /* Make modal content use more height but still fit */
+  .win{
+    width:min(560px, 95vw);
+    padding:20px 16px 16px;
+  }
+}
+
+/* Ultra small devices */
+@media (max-width: 360px) {
+  .wrap{ --W: min(94vw, 340px); }
+  .pointer{ top: calc(50% - (var(--W)/2) - 8px); }
+}
+
 </style>
 </head>
 <body>
@@ -294,12 +353,16 @@
     <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
       <button class="xbtn" id="closeModal" aria-label="Fechar">✕</button>
 
+      <!-- ✨ Updated: smaller flying icons -->
       <img class="fly one"   src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
       <img class="fly two"   src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly three" src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly four"  src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
 
-      <img class="prizeTop" alt="Prêmio RicoBet" src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png">
+      <!-- ✨ Updated: use your GIF here, modest size -->
+      <img class="prizeTop" alt="Prêmio RicoBet"
+           src="https://ricobr.ft-crm.com/media-api/serve/60be8ff2-314e-41d5-908e-2710caafde86_WY_Mascott_Icon.gif">
+
       <div class="badge">VOCÊ GANHOU</div>
       <div id="winTitle" class="title"><span class="highlight" id="winName">Prêmio</span> Desbloqueado</div>
 
@@ -344,39 +407,22 @@
   const pop = el => { if(!el) return; el.classList.remove('clicked'); void el.offsetWidth; el.classList.add('clicked'); setTimeout(()=>el.classList.remove('clicked'),350); };
   [spinBtn, copyM, hub].forEach(el => el && el.addEventListener('click', ()=>pop(el)));
 
-  // ---- Função de cópia robusta (funciona em iframes) ----
   function showCopiedUI(){
     copyM.textContent = 'Copiado ✔';
     setTimeout(()=>{ copyM.textContent='Copiar'; },1400);
     toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
   }
   async function copyTxt(v){
-    // 1) Caminho legado: textarea + execCommand (melhor p/ iframes)
     try{
       const ta = document.createElement('textarea');
-      ta.value = v;
-      ta.setAttribute('readonly','');
-      ta.style.position='fixed';
-      ta.style.opacity='0';
-      ta.style.pointerEvents='none';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      ta.setSelectionRange(0, v.length);
-      const ok = document.execCommand('copy');
-      document.body.removeChild(ta);
+      ta.value = v; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; ta.style.pointerEvents='none';
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, v.length);
+      const ok = document.execCommand('copy'); document.body.removeChild(ta);
       if(ok){ showCopiedUI(); return; }
-    }catch(e){ /* continua p/ caminho moderno */ }
-
-    // 2) Clipboard API (quando permitido)
+    }catch(e){}
     if (window.isSecureContext && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      try{
-        await navigator.clipboard.writeText(v);
-        showCopiedUI(); return;
-      }catch(e){ /* continua p/ manual */ }
+      try{ await navigator.clipboard.writeText(v); showCopiedUI(); return; }catch(e){}
     }
-
-    // 3) Fallback manual: selecionar o input
     try{
       const wasRO = codeM.hasAttribute('readonly');
       if(wasRO) codeM.removeAttribute('readonly');
@@ -391,13 +437,15 @@
     codeM.value = code;
     winName.textContent = name;
     modal.classList.add('show');
+
+    // restart smaller fly animations each time
     const [a,b,c,d] = modal.querySelectorAll('.fly');
     [a,b,c,d].forEach(el=>{ el.style.animation='none'; el.style.opacity='1'; });
     requestAnimationFrame(()=>{
-      a.style.animation='flyOutA 4s ease-out forwards';
-      b.style.animation='flyOutB 4s ease-out forwards .3s';
-      c.style.animation='flyOutC 4s ease-out forwards .6s';
-      d.style.animation='flyOutD 4s ease-out forwards .9s';
+      a.style.animation='flyOutA 3.6s ease-out forwards';
+      b.style.animation='flyOutB 3.6s ease-out forwards .24s';
+      c.style.animation='flyOutC 3.6s ease-out forwards .48s';
+      d.style.animation='flyOutD 3.6s ease-out forwards .72s';
     });
   }
   const hideModal=()=>modal.classList.remove('show');
@@ -424,7 +472,6 @@
     if(card.getAttribute('data-done')==='1') return;
     spinBtn.disabled = true;
 
-    // pausar ornamentos durante o giro
     wrap.classList.remove('idle');
     wrap.classList.add('is-spinning');
 
