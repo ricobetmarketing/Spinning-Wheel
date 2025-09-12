@@ -239,6 +239,72 @@
     :root{ --prizeSize: 78px; --flySize: 66px; }
     .title{font-size:1.4rem}
   }
+
+  /* ==== MOBILE FIT & PULL-UP TWEAKS ==== */
+
+/* Use the modern viewport unit to avoid iOS address-bar jump */
+@supports (height: 100svh) {
+  body { min-height: 100svh; }
+}
+
+/* Phone layout */
+@media (max-width: 600px) {
+  /* Pull content toward the top; remove vertical centering */
+  body{
+    display:flex;
+    align-items:stretch;
+    justify-content:flex-start;
+    /* add safe-area padding and a small top offset */
+    padding: max(10px, env(safe-area-inset-top)) 12px
+             calc(12px + env(safe-area-inset-bottom));
+    /* keep same background */
+    background-attachment: fixed;
+  }
+
+  /* Tighten the card and pull it slightly upward */
+  .card{
+    width:100%;
+    padding:12px 10px 8px;
+    margin: 4px auto 0;
+  }
+
+  /* Make headline/sub a touch smaller */
+  h2{ font-size: .98rem; }
+  .sub{ font-size: 12px; margin-bottom: 10px; }
+
+  /* Reduce wheel size and bring it closer to the headline */
+  .wrap{
+    /* slightly smaller wheel on phones */
+    --W: min(92vw, 380px);
+    margin: 4px auto 0;   /* was 8px auto 6px */
+  }
+
+  /* Nudge the pointer a bit higher so the total block is shorter */
+  .pointer{ top: calc(50% - (var(--W)/2) - 6px); } /* was -2px */
+
+  /* Trim some of the decorative glow to save vertical space */
+  .halo{ display:none; }
+  .outerRing{ inset: calc(var(--W) * -0.12); }
+
+  /* Slightly smaller hub for better fit */
+  .hub{
+    width: calc(var(--W) * .28);
+    height: calc(var(--W) * .28);
+  }
+
+  /* Make modal content use more height but still fit */
+  .win{
+    width:min(560px, 95vw);
+    padding:20px 16px 16px;
+  }
+}
+
+/* Ultra small devices */
+@media (max-width: 360px) {
+  .wrap{ --W: min(94vw, 340px); }
+  .pointer{ top: calc(50% - (var(--W)/2) - 8px); }
+}
+
 </style>
 </head>
 <body>
