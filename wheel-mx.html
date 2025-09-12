@@ -258,6 +258,44 @@
     .wrap{ --W: min(94vw, 340px); }
     .pointer{ top: calc(50% - (var(--W)/2) - 8px); }
   }
+
+  /* === Center logo pulse (idle only) === */
+/* soft ripple ring */
+.hub::after{
+  content:"";
+  position:absolute; inset:-6px; border-radius:50%;
+  border:2px solid rgba(108,88,255,.35);
+  box-shadow:0 0 18px rgba(108,88,255,.45), 0 0 36px rgba(255,110,196,.25);
+  transform:scale(1); opacity:0;
+  pointer-events:none;
+}
+.wrap.idle .hub::after{               /* show + animate before spin */
+  opacity:1; 
+  animation:rbRingPulse 2.2s ease-out infinite;
+}
+.wrap.is-spinning .hub::after{        /* hide/pause during spin */
+  animation-play-state:paused; opacity:0;
+}
+
+/* gentle breathing of the R logo itself */
+.wrap.idle .hub img{
+  animation:rbLogoPulse 2.4s ease-in-out infinite;
+}
+.wrap.is-spinning .hub img{
+  animation-play-state:paused;
+}
+
+/* keyframes */
+@keyframes rbRingPulse{
+  0%   { transform:scale(1);    opacity:.9; }
+  70%  { transform:scale(1.28); opacity:0;  }
+  100% { transform:scale(1.28); opacity:0;  }
+}
+@keyframes rbLogoPulse{
+  0%,100% { transform:scale(1);    }
+  50%     { transform:scale(1.06); }
+}
+
 </style>
 </head>
 <body>
