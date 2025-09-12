@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="es">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,13 +11,13 @@
     --gold1:#ffd36b; --gold2:#ffb436; --gold3:#ffcf7a; --warn:#ffe600;
     --wedgeDark:#ff7b44; --wedgeLight:#ffc86a;
 
-    /* ✨ New: easy size controls for prize & fly icons */
-    --prizeSize: 92px;   /* post-spin GIF in modal */
-    --flySize:   78px;   /* flying icons after spin */
+    /* Tamaños fáciles para assets del modal */
+    --prizeSize: 92px;  /* GIF post-spin */
+    --flySize:   78px;  /* íconos voladores */
   }
   *{box-sizing:border-box}
 
-  /* ===== FUNDO DA PÁGINA (estático) ===== */
+  /* ===== Fondo ===== */
   body{
     margin:0; color:var(--text);
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -30,7 +30,7 @@
     background:radial-gradient(140% 90% at 50% 30%, #0008 0%, #0009 45%, #000b 100%);
   }
 
-  /* ===== Cabeçalho ===== */
+  /* ===== Cabecera ===== */
   .card{
     position:relative; z-index:2; width:min(760px,94vw); text-align:center;
     background:transparent; border:0; border-radius:20px; box-shadow:none; padding:18px 16px 10px;
@@ -39,7 +39,7 @@
   .grad{background:linear-gradient(90deg,var(--rb-pink),var(--rb-purple)); -webkit-background-clip:text; background-clip:text; color:transparent}
   .sub{margin:0 10px 14px; color:var(--dim)}
 
-  /* ===== Botões ===== */
+  /* ===== Botones genéricos (se usan para “Copiar”) ===== */
   .btn{
     position:relative; z-index:10; display:inline-flex; align-items:center; gap:8px;
     border:0; cursor:pointer; user-select:none; color:#0e0f23; font-weight:800;
@@ -64,7 +64,7 @@
   @keyframes clickPop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
   .clicked{animation:clickPop .35s ease}
 
-  /* ===== Roleta ===== */
+  /* ===== Ruleta ===== */
   .wrap{ --W:min(84vw,480px); position:relative; display:grid; place-items:center; margin:8px auto 6px; z-index:2 }
   .wrap .halo{
     position:absolute; z-index:0; width:calc(var(--W)*1.28); height:calc(var(--W)*1.28); border-radius:50%;
@@ -175,7 +175,7 @@
   .lab.e{ --theta: 180deg; } .lab.f{ --theta: 225deg; }
   .lab.g{ --theta: 270deg; } .lab.h{ --theta: 315deg; }
 
-  /* Hub central — rotação lenta (idle) */
+  /* ===== Hub central (logo) ===== */
   .hub{
     position:absolute; z-index:6; left:50%; top:50%; transform:translate(-50%,-50%);
     width:calc(var(--W)*.30); height:calc(var(--W)*.30); max-width:132px; max-height:132px;
@@ -184,17 +184,39 @@
     box-shadow:inset 0 10px 18px rgba(255,255,255,.06), inset 0 -14px 22px rgba(0,0,0,.6),
                0 12px 24px rgba(0,0,0,.55), 0 0 22px rgba(120,115,245,.25);
     display:grid; place-items:center; overflow:hidden; transition:filter .2s ease;
-    animation:hubSlow 26s linear infinite reverse;
+    animation:hubSlow 26s linear infinite reverse;  /* rotación lenta (idle) */
   }
   @keyframes hubSlow{to{transform:translate(-50%,-50%) rotate(360deg)}}
   .hub:hover{filter:brightness(1.06)}
   .hub:active{filter:brightness(1.02)}
   .hub:focus-visible{outline:2px solid #8aa1ff; outline-offset:2px}
+
+  /* Brillo interior existente */
   .hub .shine{ position:absolute; inset:-30%;
     background:conic-gradient(from 0deg,#ffffff18 0 8%, #0000 8% 25%, #ffffff14 25% 33%, #0000 33% 50%, #ffffff10 50% 58%, #0000 58% 100%);
     pointer-events:none;
   }
-  .hub img{ width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55)); }
+  .hub img{
+    width:72%; height:72%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.55));
+    animation:logoPulse 2.6s ease-in-out infinite; /* ✨ pulso suave del logo */
+  }
+  @keyframes logoPulse{
+    0%,100%{ transform:scale(1); }
+    45%   { transform:scale(1.06); }
+  }
+
+  /* ✨ anillo de pulso alrededor del hub (para indicar clic) */
+  .hub::after{
+    content:""; position:absolute; inset:-10px; border-radius:50%;
+    box-shadow:0 0 0 0 rgba(108,88,255,.45);
+    animation:ringPulse 1.8s ease-out infinite;
+    pointer-events:none;
+  }
+  @keyframes ringPulse{
+    0%  { box-shadow:0 0 0 0 rgba(108,88,255,.45); opacity:.9 }
+    70% { box-shadow:0 0 0 18px rgba(108,88,255,0); opacity:.2 }
+    100%{ box-shadow:0 0 0 0 rgba(108,88,255,0);  opacity:0 }
+  }
 
   /* ===== Modal ===== */
   .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:20}
@@ -205,7 +227,6 @@
   .xbtn{position:absolute; right:10px; top:10px; border:0; width:36px; height:36px; border-radius:50%; color:#fff; background:rgba(255,255,255,.14); cursor:pointer}
   .badge{display:inline-block; padding:8px 12px; border-radius:999px; font-weight:900; letter-spacing:.3px; background:linear-gradient(90deg,var(--rb-red),var(--rb-purple)); box-shadow:0 8px 18px rgba(255,46,85,.35); margin-top:6px}
 
-  /* ✨ Updated: smaller / responsive assets */
   .prizeTop{
     width:var(--prizeSize); height:var(--prizeSize); object-fit:contain; display:block;
     margin:6px auto 2px; filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))
@@ -216,7 +237,7 @@
   .codeInp{flex:1 1 260px; min-width:220px; padding:12px; border-radius:12px; border:1px solid #3a3e86; background:#0f122d; color:#fff; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1rem}
   .copyBtn{padding:12px 18px}
 
-  /* ✨ Updated: smaller flying icons */
+  /* Íconos voladores (más pequeños) */
   .fly{position:absolute; width:var(--flySize); height:var(--flySize); object-fit:contain; filter:drop-shadow(0 14px 20px rgba(0,0,0,.5)); opacity:0}
   @keyframes flyOutA{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(-110px,-70px) scale(1.04) rotate(-14deg);opacity:.9}100%{transform:translate(-200px,-140px) scale(1.08) rotate(-20deg);opacity:0}}
   @keyframes flyOutB{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(110px,-70px) scale(1.04) rotate(14deg);opacity:.9}100%{transform:translate(200px,-140px) scale(1.08) rotate(20deg);opacity:0}}
@@ -224,7 +245,7 @@
   @keyframes flyOutD{0%{transform:translate(0,0) scale(.86) rotate(0);opacity:1}60%{transform:translate(70px,90px) scale(1.04) rotate(-10deg);opacity:.9}100%{transform:translate(140px,180px) scale(1.08) rotate(-16deg);opacity:0}}
   .fly.one{left:0; top:10%} .fly.two{right:0; top:20%} .fly.three{left:0; bottom:0} .fly.four{right:0; bottom:0}
 
-  /* toast de cópia */
+  /* Toast “Copiado” */
   .toast{
     position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
     padding:10px 14px; border-radius:10px; font-weight:700; color:#0b0e22;
@@ -234,85 +255,39 @@
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 
-  /* extra small screens: nudge sizes down a bit */
-  @media (max-width:380px){
+  /* ===== Ajustes móviles ===== */
+  @supports (height: 100svh) { body { min-height: 100svh; } }
+
+  @media (max-width: 600px) {
+    body{
+      display:flex; align-items:stretch; justify-content:flex-start;
+      padding: max(10px, env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+      background-attachment: fixed;
+    }
+    .card{ width:100%; padding:12px 10px 8px; margin: 4px auto 0; }
+    h2{ font-size: .98rem; }
+    .sub{ font-size: 12px; margin-bottom: 10px; }
+    .wrap{ --W: min(92vw, 380px); margin: 4px auto 0; }
+    .pointer{ top: calc(50% - (var(--W)/2) - 6px); }
+    .halo{ display:none; }
+    .outerRing{ inset: calc(var(--W) * -0.12); }
+    .hub{ width: calc(var(--W) * .28); height: calc(var(--W) * .28); }
+    .win{ width:min(560px, 95vw); padding:20px 16px 16px; }
+  }
+  @media (max-width: 380px){
     :root{ --prizeSize: 78px; --flySize: 66px; }
     .title{font-size:1.4rem}
   }
-
-  /* ==== MOBILE FIT & PULL-UP TWEAKS ==== */
-
-/* Use the modern viewport unit to avoid iOS address-bar jump */
-@supports (height: 100svh) {
-  body { min-height: 100svh; }
-}
-
-/* Phone layout */
-@media (max-width: 600px) {
-  /* Pull content toward the top; remove vertical centering */
-  body{
-    display:flex;
-    align-items:stretch;
-    justify-content:flex-start;
-    /* add safe-area padding and a small top offset */
-    padding: max(10px, env(safe-area-inset-top)) 12px
-             calc(12px + env(safe-area-inset-bottom));
-    /* keep same background */
-    background-attachment: fixed;
+  @media (max-width: 360px) {
+    .wrap{ --W: min(94vw, 340px); }
+    .pointer{ top: calc(50% - (var(--W)/2) - 8px); }
   }
-
-  /* Tighten the card and pull it slightly upward */
-  .card{
-    width:100%;
-    padding:12px 10px 8px;
-    margin: 4px auto 0;
-  }
-
-  /* Make headline/sub a touch smaller */
-  h2{ font-size: .98rem; }
-  .sub{ font-size: 12px; margin-bottom: 10px; }
-
-  /* Reduce wheel size and bring it closer to the headline */
-  .wrap{
-    /* slightly smaller wheel on phones */
-    --W: min(92vw, 380px);
-    margin: 4px auto 0;   /* was 8px auto 6px */
-  }
-
-  /* Nudge the pointer a bit higher so the total block is shorter */
-  .pointer{ top: calc(50% - (var(--W)/2) - 6px); } /* was -2px */
-
-  /* Trim some of the decorative glow to save vertical space */
-  .halo{ display:none; }
-  .outerRing{ inset: calc(var(--W) * -0.12); }
-
-  /* Slightly smaller hub for better fit */
-  .hub{
-    width: calc(var(--W) * .28);
-    height: calc(var(--W) * .28);
-  }
-
-  /* Make modal content use more height but still fit */
-  .win{
-    width:min(560px, 95vw);
-    padding:20px 16px 16px;
-  }
-}
-
-/* Ultra small devices */
-@media (max-width: 360px) {
-  .wrap{ --W: min(94vw, 340px); }
-  .pointer{ top: calc(50% - (var(--W)/2) - 8px); }
-}
-
 </style>
 </head>
 <body>
   <div class="card" id="card" data-done="0">
     <h2><span class="grad">Día VIP</span> – Gira la Ruleta 🎡</h2>
-    <p class="sub">Toca el botón o el logotipo central para girar y revelar tu código.</p>
-
-    <button class="btn" id="spinBtn">Girar ahora</button>
+    <p class="sub">Toca el <strong>logotipo central</strong> para girar y revelar tu código.</p>
 
     <div class="wrap idle" id="wrap">
       <div class="halo" aria-hidden="true"></div>
@@ -326,20 +301,20 @@
           <i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
 
-        <!-- prêmios -->
+        <!-- premios (iconos del aro) -->
         <div class="labs">
-          <div class="lab a"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
-          <div class="lab b"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
-          <div class="lab c"><img alt="VIP Bonus"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
-          <div class="lab d"><img alt="Mystery"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
-          <div class="lab e"><img alt="Free Spins"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
-          <div class="lab f"><img alt="Lucky Ticket" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
-          <div class="lab g"><img alt="VIP Bonus"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
-          <div class="lab h"><img alt="Mystery"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
+          <div class="lab a"><img alt="Tiradas gratis"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
+          <div class="lab b"><img alt="Boleto de la suerte" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
+          <div class="lab c"><img alt="Bono VIP"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
+          <div class="lab d"><img alt="Misterio"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
+          <div class="lab e"><img alt="Tiradas gratis"   src="https://ricobr.ft-crm.com/media-api/serve/81b24fae-5e7b-468e-b94a-896bc0e9cada_1.png"></div>
+          <div class="lab f"><img alt="Boleto de la suerte" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png"></div>
+          <div class="lab g"><img alt="Bono VIP"    src="https://ricobr.ft-crm.com/media-api/serve/0ba51d0c-9521-4fbb-8b37-6d527a545463_4.png"></div>
+          <div class="lab h"><img alt="Misterio"      src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"></div>
         </div>
       </div>
 
-      <!-- Logo central (clique para girar) -->
+      <!-- Logo central (haz clic para girar) -->
       <button class="hub" id="hub" aria-label="Girar la ruleta">
         <div class="shine"></div>
         <img alt="Logotipo de RicoBet" src="https://ricobr.ft-crm.com/media-api/serve/fdc9eb88-2c14-4eeb-a6e7-558cbd47176d_logo.png">
@@ -347,19 +322,17 @@
     </div>
   </div>
 
-  <!-- Modal de vitória -->
+  <!-- Modal de victoria -->
   <div class="modal" id="modal">
     <div class="backdrop"></div>
     <div class="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
       <button class="xbtn" id="closeModal" aria-label="Cerrar">✕</button>
 
-      <!-- ✨ Updated: smaller flying icons -->
       <img class="fly one"   src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
       <img class="fly two"   src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly three" src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png" alt="">
       <img class="fly four"  src="https://ricobr.ft-crm.com/media-api/serve/edd88eaa-1a49-4ef0-a085-09ee744e3ebf_ICON.png" alt="">
 
-      <!-- ✨ Updated: use your GIF here, modest size -->
       <img class="prizeTop" alt="Premio RicoBet"
            src="https://ricobr.ft-crm.com/media-api/serve/60be8ff2-314e-41d5-908e-2710caafde86_WY_Mascott_Icon.gif">
 
@@ -379,7 +352,6 @@
 (function(){
   const wheel   = document.getElementById('wheel');
   const wrap    = document.getElementById('wrap');
-  const spinBtn = document.getElementById('spinBtn');
   const hub     = document.getElementById('hub');
   const modal   = document.getElementById('modal');
   const closeM  = document.getElementById('closeModal');
@@ -405,7 +377,7 @@
   const KEY_IDX ='rb_spin_idx';
 
   const pop = el => { if(!el) return; el.classList.remove('clicked'); void el.offsetWidth; el.classList.add('clicked'); setTimeout(()=>el.classList.remove('clicked'),350); };
-  [spinBtn, copyM, hub].forEach(el => el && el.addEventListener('click', ()=>pop(el)));
+  [copyM, hub].forEach(el => el && el.addEventListener('click', ()=>pop(el)));
 
   function showCopiedUI(){
     copyM.textContent = 'Copiado ✔';
@@ -431,14 +403,12 @@
     }catch(e){}
     alert('No se pudo copiar automáticamente. Mantén pulsado para copiar manualmente.');
   }
-  copyM.addEventListener('click', ()=>copyTxt(codeM.value));
+  copyM && copyM.addEventListener('click', ()=>copyTxt(codeM.value));
 
   function showModal(code, name){
     codeM.value = code;
     winName.textContent = name;
     modal.classList.add('show');
-
-    // restart smaller fly animations each time
     const [a,b,c,d] = modal.querySelectorAll('.fly');
     [a,b,c,d].forEach(el=>{ el.style.animation='none'; el.style.opacity='1'; });
     requestAnimationFrame(()=>{
@@ -459,7 +429,6 @@
     if(!Number.isNaN(idx) && code){
       const o = OUTCOMES[idx % OUTCOMES.length] || {name:'Recompensa', angle:0, code};
       wheel.style.transform='rotate('+o.angle+'deg)';
-      spinBtn.disabled = true;
       card.setAttribute('data-done','1');
       showModal(code, o.name);
     }
@@ -467,11 +436,11 @@
 
   const pick=()=>Math.floor(Math.random()*OUTCOMES.length);
 
-  // 2–3 voltas apenas
+  // 2–3 vueltas
   function triggerSpin(){
     if(card.getAttribute('data-done')==='1') return;
-    spinBtn.disabled = true;
 
+    // Pausar adornos durante el giro
     wrap.classList.remove('idle');
     wrap.classList.add('is-spinning');
 
@@ -491,6 +460,7 @@
       localStorage.setItem(KEY_CODE, o.code);
       card.setAttribute('data-done','1');
 
+      // Reanudar animaciones idle
       wrap.classList.remove('is-spinning');
       wrap.classList.add('idle');
 
@@ -498,11 +468,10 @@
     },2600);
   }
 
-  spinBtn.addEventListener('click', (e)=>{ e.preventDefault(); triggerSpin(); });
+  // Activar giro con el logo central
   hub.addEventListener('click',   (e)=>{ e.preventDefault(); triggerSpin(); });
   hub.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') {e.preventDefault(); triggerSpin();} });
 })();
 </script>
 </body>
 </html>
-
