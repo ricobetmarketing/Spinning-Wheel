@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIP Day • Slot Pull (3D Lever)</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --g1:#ff6ec4; --g2:#7873f5;
+    --bg:#0e0f23; --card:#111228; --ring:#ffffff24;
+    --tx:#f2f3ff; --mut:#cfd0ff; --ok:#28c76f; --warn:#ffe46b; --err:#ff6b6b;
+    --radius:16px; --sym-h:120px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+      radial-gradient(1000px 600px at 100% -10%, #7873f544, transparent),
+      radial-gradient(1000px 600px at 0% 110%, #ff6ec444, transparent),
+      var(--bg);
+    color:var(--tx); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    min-height:100svh; display:grid; place-items:center; padding:20px;
+  }
+  .card{
+    width:min(920px, 96vw); background:linear-gradient(180deg,#12132a,#0e0f23);
+    border:1px solid var(--ring); border-radius:var(--radius); padding:18px;
+    box-shadow:0 20px 60px #0009, inset 0 0 0 1px #ffffff12;
+    position:relative; overflow:hidden;
+  }
+  .ribbon{
+    position:absolute; inset:auto -80px 18px auto; transform:rotate(-18deg);
+    background:linear-gradient(90deg,var(--g1),var(--g2)); color:white;
+    font:800 12px/1 Montserrat, sans-serif; padding:10px 80px; letter-spacing:.12em;
+    text-transform:uppercase; box-shadow:0 8px 26px #0006; pointer-events:none;
+  }
+  h1{
+    font:800 clamp(20px,4vw,28px)/1.1 Montserrat, sans-serif; margin:6px 0 2px;
+    background:linear-gradient(90deg,var(--g1),var(--g2)); -webkit-background-clip:text; color:transparent;
+  }
+  p.lead{margin:0 0 14px; color:var(--mut)}
+
+  /* Layout: reels + lever side-by-side on desktop */
+  .slot{
+    background:linear-gradient(180deg,#141635,#0d0f25);
+    border:1px solid #ffffff1f; border-radius:14px; padding:14px;
+    display:grid; gap:12px; align-items:center;
+  }
+  @media (min-width:880px){
+    .slot{ grid-template-columns: 1fr 160px }
+  }
+
+  .reels{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  }
+  .window{
+    background:#070817; border-radius:12px; border:1px solid #ffffff14; height:var(--sym-h); overflow:hidden;
+    box-shadow:inset 0 0 0 1px #000, 0 10px 24px #0008;
+  }
+  .strip{
+    display:flex; flex-direction:column; translate:0 0; transition:transform 1s cubic-bezier(.2,.8,.2,1);
+  }
+  .sym{
+    height:var(--sym-h); display:grid; place-items:center; font:800 38px/1 Montserrat; letter-spacing:.02em;
+    background:linear-gradient(180deg,#11122b,#0c0e22);
+    -webkit-text-stroke:1px #000; color:white;
+    border-bottom:1px solid #0006;
+  }
+  .sym.g{ color:#78f3ff }
+  .sym.p{ color:#ffe46b }
+  .sym.r{ color:#ff8bd8 }
+
+  .controls{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center; margin-top:6px;
+  }
+  .btn{
+    appearance:none; border:0; padding:12px 18px; border-radius:12px; cursor:pointer; color:#0b0b16;
+    font:800 14px/1 Montserrat; letter-spacing:.06em; text-transform:uppercase;
+    background:linear-gradient(90deg,var(--g1),var(--g2)); box-shadow:0 8px 18px #0007;
+  }
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .subbtn{ background:#1b1e3c; color:var(--tx); border:1px solid #ffffff14; box-shadow:none }
+  .status{ text-align:center; min-height:28px; font-weight:600; color:var(--mut); }
+  .result{
+    text-align:center; margin-top:8px; font-weight:800; font-family:Montserrat;
+    font-size:clamp(16px,3.5vw,20px);
+  }
+  .voucher{
+    margin-top:10px; display:none; grid-template-columns:1fr auto; gap:8px; align-items:center;
+  }
+  .code{
+    background:#0b0c1a; border:1px dashed #ffffff33; padding:10px 12px; border-radius:12px; text-align:center;
+    font:800 14px/1.1 Montserrat; letter-spacing:.08em; color:#a4e0ff;
+    word-break:break-all;
+  }
+  .copy{ background:#212549; color:#fff; border:1px solid #ffffff22 }
+  .tiny{font-size:12px; color:#98a0ff; text-align:center; margin-top:8px}
+
+  /* Confetti canvas */
+  .confetti{pointer-events:none; position:absolute; inset:0; overflow:visible}
+
+  /* ================ 3D LEVER ================ */
+  .lever-wrap{
+    display:grid; align-content:center; justify-items:center;
+    margin:6px 0 6px; padding:6px 4px;
+  }
+  .lever-hint{
+    margin-top:8px; font:700 12px/1 Montserrat, sans-serif; color:#98a0ff; opacity:.9;
+    text-transform:uppercase; letter-spacing:.12em;
+  }
+  .lever-base{ position:relative; width:140px; height:220px; perspective:800px; }
+  .lever-plate{
+    position:absolute; inset:auto 0 0 0; height:96px; border-radius:12px;
+    background:
+      radial-gradient(120px 40px at 50% 100%, #000000aa 0 70%, transparent 72%),
+      linear-gradient(180deg, #1f224a, #151735);
+    border:1px solid #ffffff14;
+    box-shadow:inset 0 1px 0 #ffffff0c, 0 16px 40px #0008;
+  }
+  .lever-slot{
+    position:absolute; left:50%; top:12px; transform:translateX(-50%);
+    width:16px; height:64px; border-radius:999px;
+    background:linear-gradient(180deg,#0a0b18,#060713);
+    border:1px solid #000; box-shadow:inset 0 -8px 14px #0008, inset 0 10px 10px #ffffff07;
+  }
+  .lever-arm{
+    position:absolute; left:50%; bottom:82px; transform:translateX(-50%) rotateX(0deg) rotateZ(0deg);
+    transform-origin:50% 100%;
+    transition:transform .18s cubic-bezier(.2,.8,.2,1);
+    width:26px; height:150px; pointer-events:auto; cursor:grab;
+  }
+  .lever-arm:active{ cursor:grabbing }
+  .lever-stick{
+    position:absolute; left:50%; bottom:42px; transform:translateX(-50%);
+    width:8px; height:92px; border-radius:6px;
+    background:
+      linear-gradient(90deg,#0b0d1f, #8aa0ff33 30%, #0b0d1f 60%, #8aa0ff22 90%),
+      linear-gradient(180deg,#2b2e5a,#0c0e22 70%);
+    box-shadow: inset 0 0 0 1px #ffffff18, 0 6px 10px #0007;
+  }
+  .lever-knob{
+    position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+    width:58px; height:58px; border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, #ffffffcc 0 6%, transparent 7%),
+      radial-gradient(circle at 35% 35%, #ffffff55 0 20%, transparent 22%),
+      radial-gradient(circle at 70% 75%, #00000077 0 30%, transparent 34%),
+      linear-gradient(180deg, #ff6ec4, #8c66ff 70%, #463d9d);
+    border:1px solid #ffffff22;
+    box-shadow: 0 14px 24px #000a, inset 0 0 40px #ffffff18;
+  }
+  .knob-gloss{
+    position:absolute; inset:0; border-radius:50%;
+    background:radial-gradient(120px 60px at 50% 20%, #ffffff22, transparent 60%);
+    mix-blend-mode:screen; pointer-events:none;
+  }
+  .lever-shadow{
+    position:absolute; left:50%; bottom:76px; transform:translateX(-50%);
+    width:96px; height:18px; border-radius:999px;
+    background:radial-gradient(closest-side, #0009, transparent);
+    filter:blur(4px); opacity:.8;
+  }
+  .lever-arm.pull{ transform:translateX(-50%) rotateX(28deg) rotateZ(-4deg); }
+  .lever-ready .lever-knob{
+    box-shadow: 0 14px 24px #000a, 0 0 18px #7873f555, inset 0 0 40px #ffffff18;
+  }
+</style>
+</head>
+<body>
+  <div class="card" id="app">
+    <div class="ribbon">VIP Day</div>
+    <h1>VIP Slot Pull</h1>
+    <p class="lead">Pull the lever to unlock your VIP reward. One claim per day.</p>
+
+    <div class="slot">
+      <!-- Reels -->
+      <div class="reels">
+        <div class="window"><div class="strip" id="s1"></div></div>
+        <div class="window"><div class="strip" id="s2"></div></div>
+        <div class="window"><div class="strip" id="s3"></div></div>
+      </div>
+
+      <!-- 3D Lever -->
+      <div class="lever-wrap">
+        <div class="lever-base">
+          <div class="lever-plate">
+            <div class="lever-slot"></div>
+          </div>
+          <div class="lever-arm" id="leverArm" title="Pull to play">
+            <div class="lever-stick"></div>
+            <div class="lever-knob"><div class="knob-gloss"></div></div>
+          </div>
+          <div class="lever-shadow"></div>
+        </div>
+        <div class="lever-hint">Pull to play</div>
+      </div>
+
+      <!-- Controls (fallback) -->
+      <div class="controls" style="grid-column:1 / -1">
+        <button class="btn" id="spinBtn">Pull Lever</button>
+        <button class="btn subbtn" id="refreshBtn">Refresh</button>
+      </div>
+
+      <div class="status" id="status">Good luck!</div>
+      <div class="result" id="result"></div>
+
+      <div class="voucher" id="voucherBox">
+        <div class="code" id="voucherCode">VIPDAY-XXXX</div>
+        <button class="btn copy" id="copyBtn">Copy</button>
+      </div>
+      <div class="tiny">Tip: Screenshot or copy your code. Codes are case sensitive.</div>
+    </div>
+
+    <canvas class="confetti" id="confetti"></canvas>
+  </div>
+
+<script>
+/* ---------------- CONFIG ---------------- */
+const REWARDS = {
+  '⭐': { id:'FS50', label:'50 Free Spins' },
+  '💎': { id:'T2',   label:'2 Lucky Sweet Spins' },
+  '7':  { id:'BON',  label:'Bonus R$50 (x5 WR)' },
+  '🍀': { id:'FS20', label:'20 Free Spins' },
+  '🔔': { id:'T1',   label:'1 Lucky Sweet Spin' },
+};
+const SYMBOLS = ['⭐','💎','7','🍀','🔔'];
+const CLAIM_KEY = 'vipday_slot_claim_' + new Date().toISOString().slice(0,10); // YYYY-MM-DD
+
+/* -------------- UTILITIES --------------- */
+const $ = sel => document.querySelector(sel);
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
+function pad(n){return n.toString().padStart(2,'0')}
+function yyyymmdd(d=new Date()){ return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate()) }
+function randomCode(len=6){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<len;i++) s+=c[randInt(0,c.length-1)]; return s; }
+function generateVoucher(rewardId){ return `VIPDAY-${yyyymmdd()}-${rewardId}-${randomCode(6)}`; }
+function alreadyClaimed(){ return localStorage.getItem(CLAIM_KEY)==='1' }
+function setClaimed(){ localStorage.setItem(CLAIM_KEY,'1') }
+
+function statusMsg(msg, type){
+  const el = $('#status'); el.textContent = msg;
+  el.style.color = type==='ok' ? 'var(--ok)' : type==='warn' ? 'var(--warn)' : type==='err' ? 'var(--err)' : 'var(--mut)';
+}
+
+/* -------------- CONFETTI ---------------- */
+const confetti = $('#confetti');
+const ctx = confetti.getContext('2d');
+function resizeCanvas(){ confetti.width = confetti.clientWidth; confetti.height = confetti.clientHeight; }
+addEventListener('resize', resizeCanvas); resizeCanvas();
+let pieces = [];
+function burst(){
+  pieces.length = 160;
+  for(let i=0;i<pieces.length;i++){
+    pieces[i]={ x: confetti.width/2, y: confetti.height/3, r: Math.random()*6+2,
+      vx: (Math.random()-0.5)*6, vy: Math.random()*-6-2, g: 0.15 + Math.random()*0.2, life: 80 + Math.random()*40 };
+  }
+}
+function tick(){
+  ctx.clearRect(0,0,confetti.width,confetti.height);
+  pieces.forEach(p=>{
+    p.vy += p.g; p.x += p.vx; p.y += p.vy; p.life -= 1;
+    ctx.globalAlpha = Math.max(p.life/120,0);
+    ctx.fillStyle = Math.random()<.5 ? '#ff6ec4' : '#7873f5';
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+  });
+  pieces = pieces.filter(p=>p.life>0 && p.y<confetti.height+20);
+  requestAnimationFrame(tick);
+}
+tick();
+
+/* --------------- BUILD REELS -------------- */
+const r1 = $('#s1'), r2 = $('#s2'), r3 = $('#s3');
+function buildStrips(){
+  [r1,r2,r3].forEach((strip)=>{
+    strip.innerHTML = '';
+    const tall = SYMBOLS.concat(SYMBOLS, SYMBOLS, SYMBOLS);
+    tall.forEach(sym=>{
+      const div=document.createElement('div');
+      div.className='sym ' + (sym==='⭐'?'g':sym==='💎'?'p':sym==='7'?'r':'');
+      div.textContent=sym; strip.appendChild(div);
+    });
+  });
+}
+buildStrips();
+
+/* --------------- SPIN FLOW ---------------- */
+function disable(v){ $('#spinBtn').disabled = v; }
+function spin(){
+  if(alreadyClaimed()){ statusMsg('You already claimed today. Come back tomorrow.', 'warn'); return; }
+  disable(true);
+  statusMsg('Spinning…'); $('#result').textContent='';
+  $('#voucherBox').style.display='none';
+
+  const chosen = SYMBOLS[randInt(0,SYMBOLS.length-1)]; // uniform; weight if needed
+  const stopIndexBase = randInt(8, 11);
+  const stops = [stopIndexBase, stopIndexBase+1, stopIndexBase+2].map(n=>n + randInt(0,2));
+
+  [r1,r2,r3].forEach((strip,i)=>{
+    const symbols = Array.from(strip.children);
+    let target = stops[i] % symbols.length;
+    for(let k=0;k<symbols.length;k++){
+      const idx=(target+k)%symbols.length;
+      if(symbols[idx].textContent===chosen){ target=idx; break; }
+    }
+    const y = -target*parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sym-h'));
+    strip.style.transitionDuration = (1+i*0.2)+'s';
+    requestAnimationFrame(()=>{ strip.style.transform=`translateY(${y}px)`; });
+  });
+
+  setTimeout(()=>{ showReward(chosen); }, 1600);
+}
+
+function showReward(sym){
+  const reward = REWARDS[sym];
+  if(!reward){ statusMsg('No reward mapping found. Please try again.', 'err'); disable(false); return; }
+  $('#result').textContent = `🎉 You won: ${reward.label}`;
+  statusMsg('Congratulations!', 'ok');
+  const code = generateVoucher(reward.id);
+  $('#voucherCode').textContent = code;
+  $('#voucherBox').style.display = 'grid';
+  burst();
+  setClaimed();
+
+  // OPTIONAL: Send claim to your backend
+  // fetch('https://YOUR-API/claim', {
+  //   method:'POST',
+  //   headers:{'Content-Type':'application/json'},
+  //   body: JSON.stringify({ game:'slot', date:new Date().toISOString().slice(0,10), rewardId: reward.id, code })
+  // });
+
+  disable(false);
+}
+
+/* --------------- BUTTON + COPY -------------- */
+$('#spinBtn').addEventListener('click', spin);
+$('#refreshBtn').addEventListener('click',()=>location.reload());
+$('#copyBtn').addEventListener('click',()=>{
+  const t = $('#voucherCode').textContent.trim();
+  navigator.clipboard.writeText(t).then(()=>{ statusMsg('Code copied ✓', 'ok'); });
+});
+
+/* --------------- 3D LEVER LOGIC -------------- */
+(function(){
+  const arm = document.getElementById('leverArm');
+  const app = document.getElementById('app');
+  let pulling = false, startY = 0, pulled = false, locked = false;
+
+  function setArm(pull){
+    arm.classList.toggle('pull', pull);
+    app.classList.toggle('lever-ready', !pull && !locked);
+  }
+
+  function fireSpin(){
+    if(locked) return;
+    locked = true;
+    try{ if(navigator.vibrate) navigator.vibrate(12); }catch(_){}
+    setArm(true);
+    setTimeout(()=>setArm(false), 260);
+    if(typeof spin === 'function'){ spin(); }
+    setTimeout(()=>{ locked=false; app.classList.add('lever-ready'); }, 1800);
+  }
+
+  function onDown(e){
+    if(locked) return;
+    pulling = true; pulled = false;
+    startY = (e.touches ? e.touches[0].clientY : e.clientY);
+  }
+  function onMove(e){
+    if(!pulling || locked) return;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    const delta = Math.max(0, Math.min(80, y - startY));
+    const ratio = delta / 80;
+    arm.style.transition = 'none';
+    arm.style.transform = `translateX(-50%) rotateX(${ratio*28}deg) rotateZ(${-ratio*4}deg)`;
+    if(ratio > 0.85) pulled = true;
+  }
+  function onUp(){
+    if(!pulling) return;
+    pulling = false;
+    arm.style.transition = '';
+    arm.style.transform = ''; // spring back via CSS
+    if(pulled) fireSpin();
+  }
+
+  // quick tap
+  arm.addEventListener('click', ()=>{ if(!pulling) fireSpin(); });
+
+  // drag
+  arm.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  arm.addEventListener('touchstart', onDown, {passive:true});
+  window.addEventListener('touchmove', onMove, {passive:true});
+  window.addEventListener('touchend', onUp);
+
+  setTimeout(()=>app.classList.add('lever-ready'), 400);
+})();
+</script>
+</body>
+</html>
